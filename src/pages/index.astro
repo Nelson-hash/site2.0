@@ -1,0 +1,136 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Horus Productions - Production Créative de Films">
+  <main>
+    <!-- Hero Section -->
+    <section class="relative h-screen overflow-hidden">
+      <div class="absolute inset-0 bg-black">
+        <div class="slides absolute inset-0">
+          <div class="slide absolute inset-0 opacity-0 transition-opacity duration-500">
+            <img src="/production-image.jpg" alt="Nuit Blanche" class="w-full h-full object-cover" />
+          </div>
+          <div class="slide absolute inset-0 opacity-0 transition-opacity duration-500">
+            <img src="/team-image.jpg" alt="Qishui" class="w-full h-full object-cover" />
+          </div>
+          <div class="slide absolute inset-0 opacity-0 transition-opacity duration-500">
+            <img src="/production-image.jpg" alt="Elias LCG" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+
+      <div class="relative z-10 pt-32 px-8">
+        <div class="max-w-6xl mx-auto">
+          <div class="space-y-4">
+            <a href="#" class="project-title group block" data-index="0">
+              <h2 class="text-[2rem] md:text-[2.5rem] font-bold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                Nuit Blanche
+                <span class="text-base md:text-lg font-normal ml-4 opacity-60">(en cours) 2024</span>
+              </h2>
+            </a>
+            <a href="#" class="project-title group block" data-index="1">
+              <h2 class="text-[2rem] md:text-[2.5rem] font-bold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                Papi Teddy Bear & Pense
+                <span class="text-base md:text-lg font-normal ml-4 opacity-60">2023</span>
+              </h2>
+            </a>
+            <a href="#" class="project-title group block" data-index="2">
+              <h2 class="text-[2rem] md:text-[2.5rem] font-bold opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                Elias LCG
+                <span class="text-base md:text-lg font-normal ml-4 opacity-60">2024</span>
+              </h2>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="py-32 px-8 bg-black">
+      <div class="max-w-6xl mx-auto">
+        <div class="grid md:grid-cols-2 gap-16 items-center">
+          <div class="relative">
+            <img 
+              src="/production-image.jpg" 
+              alt="Production cinématographique" 
+              class="w-full h-[500px] object-cover"
+            />
+          </div>
+          <div>
+            <h2 class="text-[2rem] md:text-[2.5rem] font-bold mb-8">Nos Valeurs</h2>
+            <p class="text-lg mb-12 opacity-80 leading-relaxed">
+              Découvrez comment nous repoussons les limites de l'expression artistique avec audace et innovation. 
+              Notre passion imprègne chaque œuvre, transformant l'ordinaire en extraordinaire grâce à une créativité sans compromis.
+            </p>
+            <a 
+              href="/about" 
+              class="inline-block text-lg border border-white px-8 py-4 hover:bg-white hover:text-black transition-colors"
+            >
+              En savoir plus
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-32 px-8 bg-black border-t border-white/10">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-[2rem] md:text-[2.5rem] font-bold mb-12">Une idée, un projet, une recherche de financements ?</h2>
+        <a 
+          href="mailto:contact@horusproductions.fr" 
+          class="inline-block text-lg border border-white px-8 py-4 hover:bg-white hover:text-black transition-colors"
+        >
+          Contactez-nous
+        </a>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .slide {
+    transition: opacity 0.5s ease-in-out;
+  }
+  
+  .slide.active {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('.slide');
+    const titles = document.querySelectorAll('.project-title');
+    let currentIndex = 0;
+
+    function showSlide(index) {
+      // Hide all slides
+      slides.forEach(slide => {
+        slide.classList.remove('active');
+      });
+      
+      // Show selected slide
+      slides[index].classList.add('active');
+
+      // Update titles
+      titles.forEach(title => {
+        title.querySelector('h2').style.opacity = '0.6';
+      });
+      titles[index].querySelector('h2').style.opacity = '1';
+    }
+
+    // Show first slide on load
+    showSlide(0);
+
+    // Add click handlers
+    titles.forEach((title, index) => {
+      title.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentIndex = index;
+        showSlide(currentIndex);
+      });
+    });
+  });
+</script>

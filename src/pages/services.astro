@@ -1,0 +1,50 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const services = [
+  {
+    title: "Production de Films",
+    description: "De la conception à la réalisation, nous donnons vie à vos projets cinématographiques avec une expertise technique et créative exceptionnelle.",
+    icon: "🎥"
+  },
+  {
+    title: "Post-production",
+    description: "Montage, étalonnage, sound design et effets spéciaux : nous sublimons chaque image pour un résultat professionnel.",
+    icon: "✨"
+  },
+  {
+    title: "Direction Artistique",
+    description: "Notre équipe créative développe des concepts uniques et innovants pour donner une identité forte à votre projet.",
+    icon: "🎨"
+  },
+  {
+    title: "Production Exécutive",
+    description: "Gestion complète de votre projet, de la planification au budget, en passant par la coordination des équipes.",
+    icon: "📋"
+  }
+];
+---
+
+<Layout title="Services - Horus Productions">
+  <main class="pt-20">
+    <section class="py-20 px-4">
+      <div class="max-w-7xl mx-auto">
+        <h1 class="text-5xl font-bold mb-12 text-center">Nos Services</h1>
+        <p class="text-xl text-center mb-16 max-w-3xl mx-auto">
+          Découvrez notre gamme complète de services de production cinématographique,
+          conçue pour donner vie à vos projets les plus ambitieux.
+        </p>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          {services.map(service => (
+            <div class="bg-[#1a2942] p-8 rounded-lg">
+              <div class="text-4xl mb-4">{service.icon}</div>
+              <h3 class="text-2xl font-bold mb-4">{service.title}</h3>
+              <p class="text-gray-300">{service.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

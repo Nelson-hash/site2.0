@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
+
+const team = [
+  {
+    name: "Marie Laurent",
+    role: "Directrice Créative",
+    bio: "Plus de 15 ans d'expérience dans la production cinématographique"
+  },
+  {
+    name: "Thomas Dubois",
+    role: "Directeur Technique",
+    bio: "Expert en technologies de production innovantes"
+  },
+  {
+    name: "Sophie Martin",
+    role: "Productrice Exécutive",
+    bio: "Spécialiste de la gestion de projets complexes"
+  }
+];
+---
+
+<Layout title="À Propos - Horus Productions">
+  <main class="pt-20">
+    <section class="py-20 px-4">
+      <div class="max-w-7xl mx-auto">
+        <h1 class="text-5xl font-bold mb-12 text-center">Notre Histoire</h1>
+        <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+          <div>
+            <p class="text-lg mb-6">
+              Horus Productions est né d'une volonté claire : offrir aux jeunes artistes talentueux les moyens nécessaires pour concrétiser leurs idées créatives. Nous croyons au potentiel de ceux qui nous entourent et nous engageons à leur fournir des conditions optimales pour explorer leurs visions. En collaborant étroitement avec ces talents, nous les aidons à développer des récits uniques, ambitieux et profonds, du concept initial à la distribution.
+            </p>
+            <p class="text-lg">
+              Chez Horus Productions, nous valorisons l'originalité et la rigueur. Chaque production est une opportunité de repousser les limites de la créativité, tout en conservant une exigence artistique élevée. À travers notre engagement pour les jeunes talents et nos choix narratifs audacieux, riche de nouvelles voix et d'histoires captivantes.
+            </p>
+          </div>
+          <div class="relative">
+            <Image 
+              src="/team-image.jpg" 
+              alt="Notre équipe en action" 
+              width={600}
+              height={400}
+              class="rounded-lg shadow-xl"
+            />
+          </div>
+        </div>
+
+        <h2 class="text-4xl font-bold mb-12 text-center">Notre Équipe</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+          {team.map(member => (
+            <div class="bg-[#1a2942] p-8 rounded-lg text-center">
+              <h3 class="text-2xl font-bold mb-2">{member.name}</h3>
+              <p class="text-gold mb-4">{member.role}</p>
+              <p class="text-gray-300">{member.bio}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
