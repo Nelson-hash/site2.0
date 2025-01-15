@@ -55,23 +55,42 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
-    <!-- Values Section with minimal spacing -->
+    <!-- Values Section with improved mobile layout -->
     <section class="relative md:py-16 py-8 bg-black">
       <div class="max-w-6xl mx-auto px-8">
         <h2 class="text-[1.75rem] md:text-[2.25rem] font-bold mb-8">Nos Valeurs</h2>
         <div class="relative w-full">
-          <video 
-            autoplay 
-            loop 
-            muted 
-            playsinline 
-            class="w-full h-[300px] md:h-[600px] object-cover"
-          >
-            <source src="/background-video.mp4" type="video/mp4">
-          </video>
-          <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <p class="text-lg md:text-xl max-w-2xl text-center px-4">
-              Authenticité, singularité et impact visuel. Les projets qui nous tiennent à coeur sont ceux d'auteurs sincères, qui traitent de sujets qui leurs sont propres et avec un regard frais. Chez Horus Productions, chaque projet reflète notre engagement à transformer votre vision en une expérience marquante.
+          <!-- Desktop layout -->
+          <div class="hidden md:block relative">
+            <video 
+              autoplay 
+              loop 
+              muted 
+              playsinline 
+              class="w-full h-[600px] object-cover"
+            >
+              <source src="/background-video.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <p class="text-xl max-w-2xl text-center px-4">
+                Authenticité, singularité et impact visuel. Les projets qui nous tiennent à coeur sont ceux d'auteurs sincère, qui traitent de sujets qui leurs sont propres et avec un regard frais. Chez Horus Productions, chaque projet reflète notre engagement à transformer votre vision en une expérience marquante.
+              </p>
+            </div>
+          </div>
+
+          <!-- Mobile layout -->
+          <div class="md:hidden">
+            <video 
+              autoplay 
+              loop 
+              muted 
+              playsinline 
+              class="w-full h-[200px] object-cover mb-6"
+            >
+              <source src="/background-video.mp4" type="video/mp4">
+            </video>
+            <p class="text-base leading-relaxed">
+              Authenticité, singularité et impact visuel. Les projets qui nous tiennent à coeur sont ceux d'auteurs sincère, qui traitent de sujets qui leurs sont propres et avec un regard frais. Chez Horus Productions, chaque projet reflète notre engagement à transformer votre vision en une expérience marquante.
             </p>
           </div>
         </div>
