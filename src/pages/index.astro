@@ -55,6 +55,14 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
 
+<!-- Logo et titre en haut à gauche -->
+    <header class="flex items-center justify-start p-4">
+      <!-- Ajoutez le logo -->
+      <img src="/1045.png" alt="Horus Productions Logo" class="w-12 h-auto mr-4" />
+      <!-- Titre de la page -->
+      <h1 class="text-4xl font-bold text-white">Horus Productions</h1>
+    </header>
+
     <!-- Values Section -->
     <section class="relative md:py-16 py-8 bg-black">
       <div class="max-w-6xl mx-auto px-8">
@@ -121,6 +129,28 @@ import Layout from '../layouts/Layout.astro';
   
   .slide.active {
     opacity: 1;
+  }
+</style>
+
+<style>
+  /* Styles personnalisés pour l'entête */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+    background-color: #000; /* Fond noir */
+  }
+
+  .logo {
+    width: 50px;  /* Ajustez la taille du logo */
+    height: auto;
+    margin-right: 10px;  /* Espace entre le logo et le titre */
+  }
+
+  h1 {
+    font-size: 2.5rem;  /* Taille du titre */
+    color: white;  /* Couleur du texte */
   }
 </style>
 
