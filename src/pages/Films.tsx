@@ -12,13 +12,11 @@ const Films: React.FC = () => {
   const { setHovered } = useCursor();
   
   const upcomingFilms: Film[] = [
-    { title: "LE TITRE DU FILM", year: "2024" },
-    { title: "UN AUTRE FILM", year: "2025" }
+    { title: "NUIT BLANCHE", year: "2025" }
   ];
   
   const pastFilms: Film[] = [
-    { title: "FILM PRÉCÉDENT", year: "2023" },
-    { title: "ANCIEN FILM", year: "2022" }
+    { title: "QISHUI PAPITEDDYBEAR FEAT PENSE", year: "2024" }
   ];
   
   const containerVariants = {
