@@ -39,7 +39,7 @@ const Films: React.FC = () => {
       title: "QISHUI PAPITEDDYBEAR FEAT PENSE", 
       year: "2024",
       image: "/images/films/qishui.jpg",
-      description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR &  PenseMusic‬",
+      description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬",
       link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
       theme: {
         background: "#d8e1e8",
