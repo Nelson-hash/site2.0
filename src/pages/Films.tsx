@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
+import HomeLink from '../components/HomeLink';
 
 interface Film {
   title: string;
@@ -9,17 +10,17 @@ interface Film {
 
 const Films: React.FC = () => {
   const { setHovered } = useCursor();
-
+  
   const upcomingFilms: Film[] = [
     { title: "LE TITRE DU FILM", year: "2024" },
     { title: "UN AUTRE FILM", year: "2025" }
   ];
-
+  
   const pastFilms: Film[] = [
     { title: "FILM PRÉCÉDENT", year: "2023" },
     { title: "ANCIEN FILM", year: "2022" }
   ];
-
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -29,7 +30,7 @@ const Films: React.FC = () => {
       }
     }
   };
-
+  
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -37,9 +38,13 @@ const Films: React.FC = () => {
       y: 0
     }
   };
-
+  
   return (
-    <div className="min-h-screen bg-black/90 flex items-center justify-center p-8">
+    <div className="min-h-screen bg-black/90 flex items-center justify-center p-8 relative">
+      <div className="absolute top-8 left-8 z-10">
+        <HomeLink />
+      </div>
+      
       <motion.div
         initial="hidden"
         animate="visible"
@@ -64,7 +69,7 @@ const Films: React.FC = () => {
             ))}
           </div>
         </motion.section>
-
+        
         <motion.section variants={itemVariants}>
           <h2 className="text-4xl font-mono mb-8 tracking-wider">REVOYEZ</h2>
           <div className="space-y-6">
