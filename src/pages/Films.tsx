@@ -8,6 +8,7 @@ interface Film {
   year: string;
   image: string;
   description: string;
+  link?: string;
   theme: {
     background: string;
     text: string;
@@ -24,13 +25,13 @@ const Films: React.FC = () => {
       title: "NUIT BLANCHE", 
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
-      description: "Film en montage...",
+      description: "Julien et Marie, étudiants et en couple depuis peu, vont passer le week-end à la campagne, dans la maison de famille de Marie, où les attendent ses trois frères et sœurs. C’est l’occasion de leur présenter Julien. Si tous l’accueillent chaleureusement, l’un des frères semble plus rétif, sans raison particulière. Tandis que les bouteilles défilent et que la soirée bat son plein, les signes d’inimitié entre les deux garçons s’accumulent. Soudain, après le dîner, à la faveur de l’alcool et d’une cigarette refusée, l’un s’en prend physiquement à l’autre : un geste, un mot, et Julien s’effondre sur la table du salon. Il ne se relèvera pas. En un instant, leur vie à tous a basculé et une nuit de cauchemar les attend.",
       theme: {
         background: "#ffffff",
         text: "#000000",
         accent: "#555555"
       }
-     }   
+    }
   ];
   
   const pastFilms: Film[] = [
@@ -38,13 +39,14 @@ const Films: React.FC = () => {
       title: "QISHUI PAPITEDDYBEAR FEAT PENSE", 
       year: "2024",
       image: "/images/films/qishui.jpg",
-      description: "...",
+      description: "QISHUI 1er extrait de "LA CHAUFFE", EP commun entre PAPI TEDDY BEAR &  PenseMusic‬",
+      link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
       theme: {
-        background: "#800000",
-        text: "#ffffff",
-        accent: "#ff9999"
+        background: "#d8e1e8",
+        text: "#1a2a38",
+        accent: "#7096b8"
       }
-     }   
+    }
   ];
   
   const containerVariants = {
@@ -155,17 +157,33 @@ const Films: React.FC = () => {
                   }}
                   whileHover={{ x: 20 }}
                 >
-                  <h3 className="text-2xl font-light tracking-wide">
-                    {film.title} 
-                    <motion.span
-                      animate={{
-                        color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
-                      }} 
-                      className="ml-4"
-                    >
-                      {film.year}
-                    </motion.span>
-                  </h3>
+                  {film.link ? (
+                    <a href={film.link} target="_blank" rel="noopener noreferrer">
+                      <h3 className="text-2xl font-light tracking-wide">
+                        {film.title} 
+                        <motion.span
+                          animate={{
+                            color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                          }} 
+                          className="ml-4"
+                        >
+                          {film.year}
+                        </motion.span>
+                      </h3>
+                    </a>
+                  ) : (
+                    <h3 className="text-2xl font-light tracking-wide">
+                      {film.title} 
+                      <motion.span
+                        animate={{
+                          color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                        }} 
+                        className="ml-4"
+                      >
+                        {film.year}
+                      </motion.span>
+                    </h3>
+                  )}
                 </motion.div>
               ))}
             </div>
