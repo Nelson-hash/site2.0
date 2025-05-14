@@ -30,6 +30,7 @@ const Films: React.FC = () => {
         text: "#000000",
         accent: "#555555"
       }
+     }   
   ];
   
   const pastFilms: Film[] = [
@@ -43,6 +44,7 @@ const Films: React.FC = () => {
         text: "#ffffff",
         accent: "#ff9999"
       }
+     }   
   ];
   
   const containerVariants = {
