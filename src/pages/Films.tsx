@@ -8,19 +8,28 @@ interface Film {
   year: string;
   image: string;
   description: string;
+  theme: {
+    background: string;
+    text: string;
+    accent: string;
+  };
 }
 
 const Films: React.FC = () => {
   const { setHovered } = useCursor();
-  const [hoveredFilm, setHoveredFilm] = useState<Film | null>(null);
+  const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   
   const upcomingFilms: Film[] = [
     { 
       title: "NUIT BLANCHE", 
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
-      description: "Court-métrage en montage"
-    },
+      description: "Film en montage...",
+      theme: {
+        background: "#ffffff",
+        text: "#000000",
+        accent: "#555555"
+      }
   ];
   
   const pastFilms: Film[] = [
@@ -28,8 +37,12 @@ const Films: React.FC = () => {
       title: "QISHUI PAPITEDDYBEAR FEAT PENSE", 
       year: "2024",
       image: "/images/films/qishui.jpg",
-      description: "..."
-    },
+      description: "...",
+      theme: {
+        background: "#800000",
+        text: "#ffffff",
+        accent: "#ff9999"
+      }
   ];
   
   const containerVariants = {
@@ -71,17 +84,24 @@ const Films: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-black/90 flex items-center justify-center p-8 relative">
+    <motion.div
+      className="min-h-screen flex items-center justify-center p-8 relative"
+      animate={{
+        backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
+        color: activeFilm ? activeFilm.theme.text : "#ffffff",
+        transition: { duration: 0.6 }
+      }}
+    >
       <div className="absolute top-8 left-8 z-10">
         <HomeLink />
       </div>
       
-      <div className="w-full max-w-6xl flex">
+      <div className="w-full max-w-6xl flex flex-col md:flex-row">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="w-1/2 space-y-16"
+          className="w-full md:w-1/2 space-y-16"
         >
           <motion.section variants={itemVariants}>
             <h2 className="text-4xl font-mono mb-8 tracking-wider">PROCHAINES SORTIES</h2>
@@ -92,16 +112,24 @@ const Films: React.FC = () => {
                   className="cursor-pointer"
                   onMouseEnter={() => {
                     setHovered(true);
-                    setHoveredFilm(film);
+                    setActiveFilm(film);
                   }}
                   onMouseLeave={() => {
                     setHovered(false);
-                    setHoveredFilm(null);
+                    setActiveFilm(null);
                   }}
                   whileHover={{ x: 20 }}
                 >
                   <h3 className="text-2xl font-light tracking-wide">
-                    {film.title} <span className="text-gray-500 ml-4">{film.year}</span>
+                    {film.title} 
+                    <motion.span
+                      animate={{
+                        color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                      }}
+                      className="ml-4"
+                    >
+                      {film.year}
+                    </motion.span>
                   </h3>
                 </motion.div>
               ))}
@@ -117,16 +145,24 @@ const Films: React.FC = () => {
                   className="cursor-pointer"
                   onMouseEnter={() => {
                     setHovered(true);
-                    setHoveredFilm(film);
+                    setActiveFilm(film);
                   }}
                   onMouseLeave={() => {
                     setHovered(false);
-                    setHoveredFilm(null);
+                    setActiveFilm(null);
                   }}
                   whileHover={{ x: 20 }}
                 >
                   <h3 className="text-2xl font-light tracking-wide">
-                    {film.title} <span className="text-gray-500 ml-4">{film.year}</span>
+                    {film.title} 
+                    <motion.span
+                      animate={{
+                        color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                      }} 
+                      className="ml-4"
+                    >
+                      {film.year}
+                    </motion.span>
                   </h3>
                 </motion.div>
               ))}
@@ -135,11 +171,11 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-1/2 relative">
+        <div className="w-full md:w-1/2 h-80 md:h-auto relative mt-12 md:mt-0">
           <AnimatePresence>
-            {hoveredFilm && (
+            {activeFilm && (
               <motion.div 
-                key={hoveredFilm.title}
+                key={activeFilm.title}
                 className="absolute inset-0 flex flex-col items-center"
                 variants={imageVariants}
                 initial="hidden"
@@ -148,20 +184,20 @@ const Films: React.FC = () => {
               >
                 <div className="w-full aspect-video overflow-hidden rounded-lg mb-4">
                   <img 
-                    src={hoveredFilm.image} 
-                    alt={hoveredFilm.title} 
+                    src={activeFilm.image} 
+                    alt={activeFilm.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-lg text-gray-300 leading-relaxed">
-                  {hoveredFilm.description}
+                <p className="text-lg leading-relaxed">
+                  {activeFilm.description}
                 </p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
