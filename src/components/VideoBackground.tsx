@@ -20,11 +20,12 @@ const VideoBackground: React.FC = () => {
         muted
         loop
         playsInline
-        poster="/images/video-poster.jpg" // Add a static poster image
+        poster="/images/video-poster.jpg"
         onCanPlay={() => setIsLoaded(true)}
       >
         <source src="/videos/background-compressed.webm" type="video/webm" />
         <source src="/videos/background-compressed.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
       </video>
     </>
   );
