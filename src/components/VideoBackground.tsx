@@ -2,17 +2,30 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const VideoBackground: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.5;
+      
+      // Force play the video
+      const playVideo = async () => {
+        try {
+          await videoRef.current?.play();
+        } catch (error) {
+          console.error("Error playing video:", error);
+        }
+      };
+      
+      playVideo();
     }
   }, []);
 
   return (
-    <>
-      {!isLoaded && <div className="fixed inset-0 bg-black z-[-1]" />}
+    <div className="video-container">
+      {/* Fallback background */}
+      <div className="fixed inset-0 bg-black z-[-2]" />
+      
+      {/* Video */}
       <video
         ref={videoRef}
         className="video-background"
@@ -20,14 +33,11 @@ const VideoBackground: React.FC = () => {
         muted
         loop
         playsInline
-        poster="/images/video-poster.jpg"
-        onCanPlay={() => setIsLoaded(true)}
       >
-        <source src="/videos/background-compressed.webm" type="video/webm" />
-        <source src="/videos/background-compressed.mp4" type="video/mp4" />
+        <source src="/videos/background.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-    </>
+    </div>
   );
 };
 
