@@ -75,7 +75,7 @@ const About = () => {
         <HomeLink />
       </div>
       
-      <div className="relative z-10 container mx-auto px-6 py-24">
+      <div className="relative z-10 container mx-auto px-6 py-12">
         <motion.div 
           className="max-w-5xl mx-auto"
           variants={containerVariants}
@@ -83,14 +83,14 @@ const About = () => {
           animate="visible"
         >
           <motion.h1 
-            className="text-6xl font-bold mb-12"
+            className="text-6xl font-bold mb-8"
             variants={itemVariants}
           >
             A PROPOS
           </motion.h1>
           
           <motion.div 
-            className="text-xl leading-relaxed mb-16 max-w-3xl"
+            className="text-xl leading-relaxed mb-12 max-w-3xl"
             variants={itemVariants}
           >
             <p className="mb-6">
@@ -99,7 +99,7 @@ const About = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8"
             variants={itemVariants}
           >
             {teamMembers.map((member, index) => (
