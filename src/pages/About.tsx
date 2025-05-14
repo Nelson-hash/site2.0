@@ -19,28 +19,28 @@ const About = () => {
     {
       firstName: "Gabriel",
       lastName: "HUSSEIN",
-      role: "Réalisateur",
+      role: "",
       email: "gabriel@horusprod.com",
       image: "/images/team/gabriel.jpg",
     },
     {
       firstName: "Matias",
       lastName: "THOMAS",
-      role: "Directeur de la photographie",
+      role: "",
       email: "matias@horusprod.com",
       image: "/images/team/matias.jpg",
     },
     {
       firstName: "Pierre",
       lastName: "MOSKVINE",
-      role: "Producteur",
+      role: "",
       email: "pierre@horusprod.com",
       image: "/images/team/pierre.jpg",
     },
     {
       firstName: "Nelson",
       lastName: "REMY",
-      role: "Sound designer",
+      role: "",
       email: "nelson@horusprod.com",
       image: "/images/team/nelson.jpg",
     }
@@ -108,27 +108,24 @@ const About = () => {
                 className="flex flex-col items-center text-center"
                 onMouseEnter={() => setHovered(true)}
                 onMouseLeave={() => setHovered(false)}
-                whileHover={{ y: -10 }}
+                whileHover={{ y: -5 }}
               >
-                <div className="w-48 h-48 mb-6 rounded-full overflow-hidden">
+                <div className="w-24 h-24 mb-4 rounded-full overflow-hidden">
                   <img 
                     src={member.image} 
                     alt={`${member.firstName} ${member.lastName}`}
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
-                <h3 className="text-2xl mb-1">
+                <h3 className="text-lg font-normal mb-0">
                   {member.firstName}
                 </h3>
-                <h3 className="text-2xl mb-3 font-bold">
+                <h4 className="text-lg font-bold mb-2">
                   {member.lastName}
-                </h3>
-                <p className="text-lg mb-2 opacity-80">
-                  {member.role}
-                </p>
+                </h4>
                 <a 
                   href={`mailto:${member.email}`}
-                  className="text-sm opacity-60 hover:opacity-100 transition-opacity"
+                  className="text-xs opacity-60 hover:opacity-100 transition-opacity"
                   onMouseEnter={() => setHovered(true)}
                   onMouseLeave={() => setHovered(false)}
                 >
