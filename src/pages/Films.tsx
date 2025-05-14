@@ -20,6 +20,7 @@ const Films: React.FC = () => {
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
       description: "Court-métrage en montage"
+    },
   ];
   
   const pastFilms: Film[] = [
