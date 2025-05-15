@@ -4,16 +4,22 @@ import { useCursor } from '../context/CursorContext';
 
 const CustomCursor: React.FC = () => {
   const [position, setPosition] = useState({ x: -100, y: -100 });
-  const { isHovered } = useCursor();
+  const { isHovered, isMobile } = useCursor();
 
+  // Only enable custom cursor on non-mobile devices
   useEffect(() => {
+    if (isMobile) return;
+    
     const updatePosition = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
 
     window.addEventListener('mousemove', updatePosition);
     return () => window.removeEventListener('mousemove', updatePosition);
-  }, []);
+  }, [isMobile]);
+
+  // Don't render the cursor on mobile
+  if (isMobile) return null;
 
   const cursorVariants = {
     default: {
