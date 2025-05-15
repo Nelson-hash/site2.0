@@ -3,11 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 
 const Logo: React.FC = () => {
-  const { setHovered } = useCursor();
+  const { setHovered, isMobile } = useCursor();
   const [showText, setShowText] = useState(false);
   
   const toggleDisplay = () => {
     setShowText(!showText);
+    
+    // On mobile, briefly flash the hover effect on tap
+    if (isMobile) {
+      setHovered(true);
+      setTimeout(() => setHovered(false), 300);
+    }
   };
   
   return (
@@ -16,19 +22,19 @@ const Logo: React.FC = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.5, delay: 0.3 }}
       className="logo-container flex flex-col items-center cursor-pointer"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => !isMobile && setHovered(true)}
+      onMouseLeave={() => !isMobile && setHovered(false)}
       onClick={toggleDisplay}
     >
       <AnimatePresence mode="wait">
         {showText ? (
           <motion.h1 
             key="text"
-            className="text-7xl md:text-8xl lg:text-9xl font-bold tracking-widest"
+            className={`${isMobile ? 'text-5xl' : 'text-7xl md:text-8xl lg:text-9xl'} font-bold tracking-widest`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: isMobile ? 1 : 1.1 }}
             transition={{ duration: 0.5 }}
           >
             HORUS
@@ -36,11 +42,11 @@ const Logo: React.FC = () => {
         ) : (
           <motion.div
             key="svg"
-            className="w-96 h-96 md:w-128 md:h-128 lg:w-144 lg:h-144" 
+            className={`${isMobile ? 'w-64 h-64' : 'w-96 h-96 md:w-128 md:h-128 lg:w-144 lg:h-144'}`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: isMobile ? 1 : 1.1 }}
             transition={{ duration: 0.5 }}
           >
             <svg 
