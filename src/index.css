@@ -9,7 +9,6 @@
 html, body {
   height: 100%;
   width: 100%;
-  overflow: hidden;
   margin: 0;
   padding: 0;
   font-family: 'Space Grotesk', sans-serif;
@@ -22,7 +21,21 @@ html, body {
   }
   
   body {
-    @apply bg-black text-white overflow-hidden antialiased;
+    @apply bg-black text-white antialiased;
+  }
+
+  /* Desktop screens */
+  @media (min-width: 768px) {
+    body {
+      @apply overflow-hidden;
+    }
+  }
+
+  /* Mobile devices - allow scrolling */
+  @media (max-width: 767px) {
+    body {
+      @apply overflow-auto;
+    }
   }
 
   .nav-item {
@@ -31,6 +44,13 @@ html, body {
 
   .nav-item:hover {
     @apply transform scale-110 tracking-widest font-bold;
+  }
+
+  /* Mobile touch targets */
+  @media (max-width: 767px) {
+    .nav-item {
+      @apply py-2 px-3 text-xl;
+    }
   }
 
   .logo-container {
@@ -49,5 +69,17 @@ html, body {
   .custom-cursor {
     @apply fixed pointer-events-none z-50 mix-blend-difference;
     transform: translate(-50%, -50%);
+  }
+  
+  /* Improved touch interactions for mobile */
+  @media (max-width: 767px) {
+    .touch-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+    
+    /* Hide custom cursor on mobile */
+    .custom-cursor {
+      @apply hidden;
+    }
   }
 }
