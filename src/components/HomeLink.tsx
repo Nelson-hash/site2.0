@@ -4,15 +4,25 @@ import { motion } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 
 const HomeLink: React.FC = () => {
-  const { setHovered } = useCursor();
+  const { setHovered, isMobile } = useCursor();
+
+  // Handle touch events for mobile
+  const handleTouch = () => {
+    if (isMobile) {
+      setHovered(true);
+      setTimeout(() => setHovered(false), 300);
+    }
+  };
 
   return (
     <Link to="/">
       <motion.h1
         className="text-2xl font-bold tracking-widest"
-        whileHover={{ scale: 1.1 }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        whileHover={{ scale: isMobile ? 1 : 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onMouseEnter={() => !isMobile && setHovered(true)}
+        onMouseLeave={() => !isMobile && setHovered(false)}
+        onTouchStart={handleTouch}
       >
         HORUS
       </motion.h1>
