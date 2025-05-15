@@ -18,6 +18,14 @@ export default {
       transitionProperty: {
         'size': 'transform, font-size, letter-spacing',
       },
+      width: {
+        '128': '32rem', // 512px
+        '144': '36rem', // 576px
+      },
+     height: {
+        '128': '32rem',
+        '144': '36rem',
+      },
       keyframes: {
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
