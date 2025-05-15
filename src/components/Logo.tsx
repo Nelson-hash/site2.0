@@ -15,7 +15,7 @@ const Logo: React.FC = () => {
       onMouseLeave={() => setHovered(false)}
     >
       <motion.div
-        className="w-64 h-64 md:w-96 md:h-96" 
+        className="w-72 h-72 md:w-128 md:h-128" 
         whileHover={{ scale: 1.1 }}
         transition={{ duration: 0.5 }}
       >
