@@ -13,7 +13,7 @@ interface TeamMember {
 }
 
 const About = () => {
-  const { setHovered } = useCursor();
+  const { setHovered, isMobile } = useCursor();
   
   const teamMembers: TeamMember[] = [
     {
@@ -67,15 +67,23 @@ const About = () => {
     }
   };
 
+  // Handle touch events for mobile
+  const handleTouch = () => {
+    if (isMobile) {
+      setHovered(true);
+      setTimeout(() => setHovered(false), 300);
+    }
+  };
+
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className={`relative min-h-screen ${isMobile ? 'pb-20' : ''} w-screen overflow-auto`}>
       <VideoBackground />
       
-      <div className="absolute top-8 left-8">
+      <div className="absolute top-8 left-8 z-10">
         <HomeLink />
       </div>
       
-      <div className="relative z-10 container mx-auto px-6 py-12">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
         <motion.div 
           className="max-w-5xl mx-auto"
           variants={containerVariants}
@@ -83,14 +91,14 @@ const About = () => {
           animate="visible"
         >
           <motion.h1 
-            className="text-6xl font-bold mb-8"
+            className="text-4xl md:text-6xl font-bold mb-6 md:mb-8"
             variants={itemVariants}
           >
             A PROPOS
           </motion.h1>
           
           <motion.div 
-            className="text-xl leading-relaxed mb-12 max-w-3xl"
+            className="text-lg md:text-xl leading-relaxed mb-8 md:mb-12 max-w-3xl"
             variants={itemVariants}
           >
             <p className="mb-6">
@@ -99,35 +107,38 @@ const About = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-8"
+            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mt-6 md:mt-8"
             variants={itemVariants}
           >
             {teamMembers.map((member, index) => (
               <motion.div 
                 key={index}
                 className="flex flex-col items-center text-center"
-                onMouseEnter={() => setHovered(true)}
-                onMouseLeave={() => setHovered(false)}
-                whileHover={{ y: -5 }}
+                onMouseEnter={() => !isMobile && setHovered(true)}
+                onMouseLeave={() => !isMobile && setHovered(false)}
+                onTouchStart={handleTouch}
+                whileHover={{ y: isMobile ? 0 : -5 }}
+                whileTap={isMobile ? { scale: 0.95 } : {}}
               >
-                <div className="w-24 h-24 mb-4 rounded-full overflow-hidden">
+                <div className="w-16 h-16 md:w-24 md:h-24 mb-3 md:mb-4 rounded-full overflow-hidden">
                   <img 
                     src={member.image} 
                     alt={`${member.firstName} ${member.lastName}`}
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
-                <h3 className="text-lg font-normal mb-0">
+                <h3 className="text-base md:text-lg font-normal mb-0">
                   {member.firstName}
                 </h3>
-                <h4 className="text-lg font-bold mb-2">
+                <h4 className="text-base md:text-lg font-bold mb-1 md:mb-2">
                   {member.lastName}
                 </h4>
                 <a 
                   href={`mailto:${member.email}`}
                   className="text-xs opacity-60 hover:opacity-100 transition-opacity"
-                  onMouseEnter={() => setHovered(true)}
-                  onMouseLeave={() => setHovered(false)}
+                  onMouseEnter={() => !isMobile && setHovered(true)}
+                  onMouseLeave={() => !isMobile && setHovered(false)}
+                  onTouchStart={handleTouch}
                 >
                   {member.email}
                 </a>
