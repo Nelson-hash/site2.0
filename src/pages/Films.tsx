@@ -119,7 +119,7 @@ const Films: React.FC = () => {
           className="w-full md:w-1/2 space-y-8 md:space-y-16"
         >
           <motion.section variants={itemVariants}>
-            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">PROCHAINES SORTIES</h2>
+            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
             <div className="space-y-4 md:space-y-6">
               {upcomingFilms.map((film, index) => (
                 <motion.div
@@ -154,7 +154,7 @@ const Films: React.FC = () => {
           </motion.section>
           
           <motion.section variants={itemVariants}>
-            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">REVOYEZ</h2>
+            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">CLIPS</h2>
             <div className="space-y-4 md:space-y-6">
               {pastFilms.map((film, index) => (
                 <motion.div
