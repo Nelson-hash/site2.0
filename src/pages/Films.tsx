@@ -17,7 +17,7 @@ interface Film {
 }
 
 const Films: React.FC = () => {
-  const { setHovered } = useCursor();
+  const { setHovered, isMobile } = useCursor();
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
   
   const upcomingFilms: Film[] = [
@@ -86,10 +86,21 @@ const Films: React.FC = () => {
       }
     }
   };
+
+  // Handle film selection for mobile
+  const handleFilmSelect = (film: Film) => {
+    setActiveFilm(film);
+    
+    // On mobile, briefly show hover effect on tap
+    if (isMobile) {
+      setHovered(true);
+      setTimeout(() => setHovered(false), 300);
+    }
+  };
   
   return (
     <motion.div
-      className="min-h-screen flex items-center justify-center p-8 relative"
+      className={`min-h-screen ${isMobile ? 'pb-20' : ''} flex flex-col md:flex-row items-center justify-center p-4 md:p-8 relative`}
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
@@ -105,26 +116,28 @@ const Films: React.FC = () => {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="w-full md:w-1/2 space-y-16"
+          className="w-full md:w-1/2 space-y-8 md:space-y-16"
         >
           <motion.section variants={itemVariants}>
-            <h2 className="text-4xl font-mono mb-8 tracking-wider">PROCHAINES SORTIES</h2>
-            <div className="space-y-6">
+            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">PROCHAINES SORTIES</h2>
+            <div className="space-y-4 md:space-y-6">
               {upcomingFilms.map((film, index) => (
                 <motion.div
                   key={index}
                   className="cursor-pointer"
                   onMouseEnter={() => {
-                    setHovered(true);
-                    setActiveFilm(film);
+                    !isMobile && setHovered(true);
+                    !isMobile && setActiveFilm(film);
                   }}
                   onMouseLeave={() => {
-                    setHovered(false);
-                    setActiveFilm(null);
+                    !isMobile && setHovered(false);
+                    !isMobile && setActiveFilm(null);
                   }}
-                  whileHover={{ x: 20 }}
+                  onClick={() => handleFilmSelect(film)}
+                  whileHover={{ x: isMobile ? 0 : 20 }}
+                  whileTap={isMobile ? { scale: 0.95 } : {}}
                 >
-                  <h3 className="text-2xl font-light tracking-wide">
+                  <h3 className="text-xl md:text-2xl font-light tracking-wide">
                     {film.title} 
                     <motion.span
                       animate={{
@@ -141,25 +154,33 @@ const Films: React.FC = () => {
           </motion.section>
           
           <motion.section variants={itemVariants}>
-            <h2 className="text-4xl font-mono mb-8 tracking-wider">REVOYEZ</h2>
-            <div className="space-y-6">
+            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">REVOYEZ</h2>
+            <div className="space-y-4 md:space-y-6">
               {pastFilms.map((film, index) => (
                 <motion.div
                   key={index}
                   className="cursor-pointer"
                   onMouseEnter={() => {
-                    setHovered(true);
-                    setActiveFilm(film);
+                    !isMobile && setHovered(true);
+                    !isMobile && setActiveFilm(film);
                   }}
                   onMouseLeave={() => {
-                    setHovered(false);
-                    setActiveFilm(null);
+                    !isMobile && setHovered(false);
+                    !isMobile && setActiveFilm(null);
                   }}
-                  whileHover={{ x: 20 }}
+                  onClick={() => {
+                    handleFilmSelect(film);
+                    // If there's a link and we're on mobile, open it
+                    if (isMobile && film.link) {
+                      window.open(film.link, '_blank');
+                    }
+                  }}
+                  whileHover={{ x: isMobile ? 0 : 20 }}
+                  whileTap={isMobile ? { scale: 0.95 } : {}}
                 >
-                  {film.link ? (
+                  {film.link && !isMobile ? (
                     <a href={film.link} target="_blank" rel="noopener noreferrer">
-                      <h3 className="text-2xl font-light tracking-wide">
+                      <h3 className="text-xl md:text-2xl font-light tracking-wide">
                         {film.title} 
                         <motion.span
                           animate={{
@@ -172,7 +193,7 @@ const Films: React.FC = () => {
                       </h3>
                     </a>
                   ) : (
-                    <h3 className="text-2xl font-light tracking-wide">
+                    <h3 className="text-xl md:text-2xl font-light tracking-wide">
                       {film.title} 
                       <motion.span
                         animate={{
@@ -191,7 +212,7 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-full md:w-1/2 h-80 md:h-auto relative mt-12 md:mt-0">
+        <div className="w-full md:w-1/2 h-64 md:h-auto relative mt-8 md:mt-0">
           <AnimatePresence>
             {activeFilm && (
               <motion.div 
@@ -209,9 +230,20 @@ const Films: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-lg leading-relaxed">
+                <p className="text-base md:text-lg leading-relaxed">
                   {activeFilm.description}
                 </p>
+                {isMobile && activeFilm.link && (
+                  <motion.a 
+                    href={activeFilm.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="mt-4 py-2 px-4 bg-black bg-opacity-20 rounded-md"
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Voir la vidéo
+                  </motion.a>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
