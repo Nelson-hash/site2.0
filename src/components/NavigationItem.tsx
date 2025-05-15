@@ -24,13 +24,13 @@ const NavigationItem: React.FC<NavigationItemProps> = ({ title, href, position }
   return (
     <motion.div
       initial={{ opacity: 0 }}
-      animate={{ opacity: 0.8 }}
+      animate={{ opacity: 0.9 }}
       transition={{ duration: 1, delay: 0.5 }}
-      className={isMobile ? "py-3" : ""}
+      className={isMobile ? "py-2 px-2" : ""}
     >
       <Link 
         to={href}
-        className={`nav-item ${isMobile ? 'text-xl py-2 px-4' : ''}`}
+        className={`nav-item ${isMobile ? 'text-2xl font-bold' : ''}`}
         onMouseEnter={() => !isMobile && setHovered(true)}
         onMouseLeave={() => !isMobile && setHovered(false)}
         onTouchStart={handleTouch}
