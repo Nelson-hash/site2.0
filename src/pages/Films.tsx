@@ -20,6 +20,7 @@ const Films: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);  
   const [clickedFilm, setClickedFilm] = useState<string | null>(null);
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   
   // Reset scroll position when component mounts
   useEffect(() => {
@@ -28,22 +29,50 @@ const Films: React.FC = () => {
     document.documentElement.scrollTop = 0;
   }, []);
 
-  // Preload images to prevent loading flicker - with better error handling
+  // Aggressive image preloading with loading state tracking + priority loading
   useEffect(() => {
     const allFilms = [...upcomingFilms, ...pastFilms];
-    const imagePromises = allFilms.map(film => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(film.title);
-        img.onerror = () => resolve(film.title); // Resolve even on error to not block
-        img.src = film.image;
-      });
+    
+    // Add preload links to head for critical images
+    allFilms.forEach((film, index) => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = film.image;
+      if (index === 0) {
+        link.setAttribute('fetchpriority', 'high');
+      }
+      document.head.appendChild(link);
     });
     
-    // Optional: You can use this to show when all images are loaded
-    Promise.all(imagePromises).then(() => {
-      // All images preloaded
+    const preloadImage = (src: string) => {
+      return new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          setLoadedImages(prev => new Set([...prev, src]));
+          resolve(src);
+        };
+        img.onerror = () => {
+          console.warn(`Failed to preload image: ${src}`);
+          reject(src);
+        };
+        // Force immediate loading
+        img.src = src;
+      });
+    };
+
+    // Preload all images immediately
+    allFilms.forEach(film => {
+      preloadImage(film.image);
     });
+
+    // Cleanup function to remove preload links
+    return () => {
+      allFilms.forEach(film => {
+        const links = document.querySelectorAll(`link[href="${film.image}"]`);
+        links.forEach(link => link.remove());
+      });
+    };
   }, []);
   
   const upcomingFilms: Film[] = [
@@ -74,6 +103,14 @@ const Films: React.FC = () => {
       }
     }
   ];
+
+  // Debug: Log image paths to check if they're correct
+  useEffect(() => {
+    console.log('Film images:', {
+      nuitBlanche: '/images/films/nuit-blanche.jpg',  
+      qishui: '/images/films/qishui.jpg'
+    });
+  }, []);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -268,16 +305,23 @@ const Films: React.FC = () => {
               key={activeFilm.title}
               className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-fade-in"
             >
-              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800/20">
+              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800/20 relative">
+                {/* Show loading state if image not loaded */}
+                {!loadedImages.has(activeFilm.image) && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800/40">
+                    <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
+                  </div>
+                )}
                 <img 
                   src={activeFilm.image} 
                   alt={activeFilm.title} 
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover transition-opacity duration-150 ${
+                    loadedImages.has(activeFilm.image) ? 'opacity-100' : 'opacity-0'
+                  }`}
                   loading="eager"
                   decoding="async"
-                  style={{ 
-                    opacity: 1,
-                    willChange: 'auto'
+                  onLoad={() => {
+                    setLoadedImages(prev => new Set([...prev, activeFilm.image]));
                   }}
                 />
               </div>
