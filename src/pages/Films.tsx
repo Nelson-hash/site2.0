@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
@@ -18,8 +18,15 @@ interface Film {
 
 const Films: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
-  const [activeFilm, setActiveFilm] = useState<Film | null>(null);
+  const [activeFilm, setActiveFilm] = useState<Film | null>(null);  
   const [clickedFilm, setClickedFilm] = useState<string | null>(null);
+  
+  // Reset scroll position when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }, []);
   
   const upcomingFilms: Film[] = [
     { 
