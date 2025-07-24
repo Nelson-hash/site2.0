@@ -28,12 +28,21 @@ const Films: React.FC = () => {
     document.documentElement.scrollTop = 0;
   }, []);
 
-  // Preload images to prevent loading flicker
+  // Preload images to prevent loading flicker - with better error handling
   useEffect(() => {
     const allFilms = [...upcomingFilms, ...pastFilms];
-    allFilms.forEach(film => {
-      const img = new Image();
-      img.src = film.image;
+    const imagePromises = allFilms.map(film => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(film.title);
+        img.onerror = () => resolve(film.title); // Resolve even on error to not block
+        img.src = film.image;
+      });
+    });
+    
+    // Optional: You can use this to show when all images are loaded
+    Promise.all(imagePromises).then(() => {
+      // All images preloaded
     });
   }, []);
   
@@ -253,21 +262,22 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
+        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative film-preview-container">
           {activeFilm && (
             <div 
               key={activeFilm.title}
               className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-fade-in"
             >
-              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800">
+              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800/20">
                 <img 
                   src={activeFilm.image} 
                   alt={activeFilm.title} 
-                  className="w-full h-full object-cover transition-opacity duration-200 ease-out"
+                  className="w-full h-full object-cover"
                   loading="eager"
+                  decoding="async"
                   style={{ 
                     opacity: 1,
-                    willChange: 'opacity'
+                    willChange: 'auto'
                   }}
                 />
               </div>
