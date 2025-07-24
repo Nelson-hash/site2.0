@@ -76,14 +76,16 @@ const About = () => {
   };
 
   return (
-    <div className={`relative min-h-screen ${isMobile ? 'pb-20' : ''} w-screen overflow-auto`}>
+    <div className="relative min-h-screen w-screen overflow-auto">
       <VideoBackground />
       
-      <div className="absolute top-8 left-8 z-10">
+      {/* Fixed header with proper spacing */}
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8">
         <HomeLink />
       </div>
       
-      <div className="relative z-10 container mx-auto px-4 md:px-6 py-8 md:py-12">
+      {/* Main content with proper padding to avoid header overlap */}
+      <div className="relative z-10 w-full pt-20 md:pt-16 px-4 md:px-6 pb-8 md:pb-12">
         <motion.div 
           className="max-w-5xl mx-auto"
           variants={containerVariants}
@@ -98,7 +100,7 @@ const About = () => {
           </motion.h1>
           
           <motion.div 
-            className="text-lg md:text-xl leading-relaxed mb-8 md:mb-12 max-w-3xl"
+            className="text-base md:text-xl leading-relaxed mb-8 md:mb-12 max-w-3xl"
             variants={itemVariants}
           >
             <p className="mb-6">
@@ -107,7 +109,7 @@ const About = () => {
           </motion.div>
           
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mt-6 md:mt-8"
+            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mt-6 md:mt-8"
             variants={itemVariants}
           >
             {teamMembers.map((member, index) => (
@@ -120,17 +122,17 @@ const About = () => {
                 whileHover={{ y: isMobile ? 0 : -5 }}
                 whileTap={isMobile ? { scale: 0.95 } : {}}
               >
-                <div className="w-16 h-16 md:w-24 md:h-24 mb-3 md:mb-4 rounded-full overflow-hidden">
+                <div className="w-20 h-20 md:w-24 md:h-24 mb-3 md:mb-4 rounded-full overflow-hidden">
                   <img 
                     src={member.image} 
                     alt={`${member.firstName} ${member.lastName}`}
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
-                <h3 className="text-base md:text-lg font-normal mb-0">
+                <h3 className="text-sm md:text-lg font-normal mb-0">
                   {member.firstName}
                 </h3>
-                <h4 className="text-base md:text-lg font-bold mb-1 md:mb-2">
+                <h4 className="text-sm md:text-lg font-bold mb-1 md:mb-2">
                   {member.lastName}
                 </h4>
                 <a 
