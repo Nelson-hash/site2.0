@@ -27,6 +27,15 @@ const Films: React.FC = () => {
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
   }, []);
+
+  // Preload images to prevent loading flicker
+  useEffect(() => {
+    const allFilms = [...upcomingFilms, ...pastFilms];
+    allFilms.forEach(film => {
+      const img = new Image();
+      img.src = film.image;
+    });
+  }, []);
   
   const upcomingFilms: Film[] = [
     { 
@@ -76,18 +85,16 @@ const Films: React.FC = () => {
   };
 
   const imageVariants = {
-    hidden: { opacity: 0, x: 20 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, 
-      x: 0,
+      opacity: 1,
       transition: { 
-        duration: 0.4,
+        duration: 0.3,
         ease: "easeOut"
       }
     },
     exit: { 
-      opacity: 0, 
-      x: 20,
+      opacity: 0,
       transition: { 
         duration: 0.2,
         ease: "easeIn"
@@ -132,7 +139,7 @@ const Films: React.FC = () => {
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
-        transition: { duration: 0.6 }
+        transition: { duration: 0.4, ease: "easeInOut" }
       }}
     >
       {/* Fixed header with proper spacing */}
@@ -177,6 +184,7 @@ const Films: React.FC = () => {
                       animate={{
                         color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
                       }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="ml-4"
                     >
                       {film.year}
@@ -217,6 +225,7 @@ const Films: React.FC = () => {
                         animate={{
                           color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
                         }} 
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
                         className="ml-4"
                       >
                         {film.year}
@@ -240,7 +249,7 @@ const Films: React.FC = () => {
 
         {/* Film preview section */}
         <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {activeFilm && (
               <motion.div 
                 key={activeFilm.title}
@@ -250,16 +259,31 @@ const Films: React.FC = () => {
                 animate="visible"
                 exit="exit"
               >
-                <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6">
+                <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800">
                   <img 
                     src={activeFilm.image} 
                     alt={activeFilm.title} 
                     className="w-full h-full object-cover"
+                    loading="eager"
+                    onLoad={(e) => {
+                      // Ensure smooth loading
+                      e.currentTarget.style.opacity = '1';
+                    }}
+                    onError={(e) => {
+                      // Fallback for broken images
+                      e.currentTarget.style.display = 'none';
+                    }}
+                    style={{ opacity: 0, transition: 'opacity 0.2s ease-in-out' }}
                   />
                 </div>
-                <p className="text-sm md:text-lg leading-relaxed text-center max-w-md">
+                <motion.p 
+                  className="text-sm md:text-lg leading-relaxed text-center max-w-md"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                >
                   {activeFilm.description}
-                </p>
+                </motion.p>
               </motion.div>
             )}
           </AnimatePresence>
