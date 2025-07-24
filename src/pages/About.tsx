@@ -17,10 +17,10 @@ const About = () => {
   
   // Reset scroll position when component mounts
   useEffect(() => {
-    if (isMobile) {
-      window.scrollTo(0, 0);
-    }
-  }, [isMobile]);
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }, []);
   
   const teamMembers: TeamMember[] = [
     {
