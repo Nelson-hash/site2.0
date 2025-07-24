@@ -50,7 +50,7 @@ const Logo: React.FC = () => {
         {showText ? (
           <motion.h1 
             key="text"
-            className={`${isMobile ? 'text-5xl' : 'text-7xl md:text-8xl lg:text-9xl'} font-bold tracking-widest pointer-events-auto`}
+            className={`${isMobile ? 'text-4xl sm:text-5xl' : 'text-7xl md:text-8xl lg:text-9xl'} font-bold tracking-widest pointer-events-auto text-center`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
@@ -63,7 +63,7 @@ const Logo: React.FC = () => {
         ) : (
           <motion.div
             key="svg"
-            className={`${isMobile ? 'w-64 h-64' : 'w-96 h-96 md:w-128 md:h-128 lg:w-144 lg:h-144'} pointer-events-auto`}
+            className={`${isMobile ? 'w-48 h-48 sm:w-64 sm:h-64' : 'w-80 h-80 md:w-96 md:h-96 lg:w-128 lg:h-128 xl:w-144 xl:h-144'} pointer-events-auto flex items-center justify-center`}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
