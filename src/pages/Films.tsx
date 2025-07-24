@@ -89,14 +89,14 @@ const Films: React.FC = () => {
     visible: { 
       opacity: 1,
       transition: { 
-        duration: 0.3,
+        duration: 0.15,
         ease: "easeOut"
       }
     },
     exit: { 
       opacity: 0,
       transition: { 
-        duration: 0.2,
+        duration: 0.1,
         ease: "easeIn"
       }
     }
@@ -139,7 +139,12 @@ const Films: React.FC = () => {
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
-        transition: { duration: 0.4, ease: "easeInOut" }
+        transition: { duration: 0.2, ease: "easeOut" }
+      }}
+      style={{
+        // Use CSS custom properties for smoother color transitions
+        '--bg-color': activeFilm ? activeFilm.theme.background : '#000000',
+        '--text-color': activeFilm ? activeFilm.theme.text : '#ffffff'
       }}
     >
       {/* Fixed header with proper spacing */}
@@ -249,44 +254,28 @@ const Films: React.FC = () => {
 
         {/* Film preview section */}
         <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
-          <AnimatePresence mode="wait">
-            {activeFilm && (
-              <motion.div 
-                key={activeFilm.title}
-                className="absolute inset-0 flex flex-col items-center justify-center p-4"
-                variants={imageVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800">
-                  <img 
-                    src={activeFilm.image} 
-                    alt={activeFilm.title} 
-                    className="w-full h-full object-cover"
-                    loading="eager"
-                    onLoad={(e) => {
-                      // Ensure smooth loading
-                      e.currentTarget.style.opacity = '1';
-                    }}
-                    onError={(e) => {
-                      // Fallback for broken images
-                      e.currentTarget.style.display = 'none';
-                    }}
-                    style={{ opacity: 0, transition: 'opacity 0.2s ease-in-out' }}
-                  />
-                </div>
-                <motion.p 
-                  className="text-sm md:text-lg leading-relaxed text-center max-w-md"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.3 }}
-                >
-                  {activeFilm.description}
-                </motion.p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {activeFilm && (
+            <div 
+              key={activeFilm.title}
+              className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-fade-in"
+            >
+              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800">
+                <img 
+                  src={activeFilm.image} 
+                  alt={activeFilm.title} 
+                  className="w-full h-full object-cover transition-opacity duration-200 ease-out"
+                  loading="eager"
+                  style={{ 
+                    opacity: 1,
+                    willChange: 'opacity'
+                  }}
+                />
+              </div>
+              <p className="text-sm md:text-lg leading-relaxed text-center max-w-md opacity-90">
+                {activeFilm.description}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
