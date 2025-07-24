@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
@@ -16,64 +16,72 @@ interface Film {
   };
 }
 
+// Image loader utility with better performance
+class ImageLoader {
+  private static cache = new Map<string, HTMLImageElement>();
+  private static loadingPromises = new Map<string, Promise<HTMLImageElement>>();
+
+  static async loadImage(src: string, priority: 'high' | 'low' = 'low'): Promise<HTMLImageElement> {
+    // Return cached image immediately
+    if (this.cache.has(src)) {
+      return this.cache.get(src)!;
+    }
+
+    // Return existing loading promise to avoid duplicate requests
+    if (this.loadingPromises.has(src)) {
+      return this.loadingPromises.get(src)!;
+    }
+
+    // Create new loading promise
+    const loadingPromise = new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      
+      const cleanup = () => {
+        this.loadingPromises.delete(src);
+      };
+
+      img.onload = () => {
+        this.cache.set(src, img);
+        cleanup();
+        resolve(img);
+      };
+
+      img.onerror = () => {
+        cleanup();
+        reject(new Error(`Failed to load image: ${src}`));
+      };
+
+      // Optimize loading
+      img.decoding = 'async';
+      img.loading = 'eager';
+      if (priority === 'high' && 'fetchPriority' in img) {
+        (img as any).fetchPriority = 'high';
+      }
+
+      // Set src last to trigger loading
+      img.src = src;
+    });
+
+    this.loadingPromises.set(src, loadingPromise);
+    return loadingPromise;
+  }
+
+  static preloadImages(sources: string[]) {
+    sources.forEach((src, index) => {
+      // Load first image with high priority
+      this.loadImage(src, index === 0 ? 'high' : 'low').catch(() => {
+        console.warn(`Failed to preload: ${src}`);
+      });
+    });
+  }
+}
+
 const Films: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);  
   const [clickedFilm, setClickedFilm] = useState<string | null>(null);
-  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
-  
-  // Reset scroll position when component mounts
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-  }, []);
-
-  // Aggressive image preloading with loading state tracking + priority loading
-  useEffect(() => {
-    const allFilms = [...upcomingFilms, ...pastFilms];
-    
-    // Add preload links to head for critical images
-    allFilms.forEach((film, index) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = film.image;
-      if (index === 0) {
-        link.setAttribute('fetchpriority', 'high');
-      }
-      document.head.appendChild(link);
-    });
-    
-    const preloadImage = (src: string) => {
-      return new Promise<string>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          setLoadedImages(prev => new Set([...prev, src]));
-          resolve(src);
-        };
-        img.onerror = () => {
-          console.warn(`Failed to preload image: ${src}`);
-          reject(src);
-        };
-        // Force immediate loading
-        img.src = src;
-      });
-    };
-
-    // Preload all images immediately
-    allFilms.forEach(film => {
-      preloadImage(film.image);
-    });
-
-    // Cleanup function to remove preload links
-    return () => {
-      allFilms.forEach(film => {
-        const links = document.querySelectorAll(`link[href="${film.image}"]`);
-        links.forEach(link => link.remove());
-      });
-    };
-  }, []);
+  const [loadingStates, setLoadingStates] = useState<Map<string, boolean>>(new Map());
+  const mountedRef = useRef(true);
   
   const upcomingFilms: Film[] = [
     { 
@@ -104,81 +112,85 @@ const Films: React.FC = () => {
     }
   ];
 
-  // Debug: Log image paths to check if they're correct
+  // Reset scroll position when component mounts
   useEffect(() => {
-    console.log('Film images:', {
-      nuitBlanche: '/images/films/nuit-blanche.jpg',  
-      qishui: '/images/films/qishui.jpg'
-    });
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
-  
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0
-    }
-  };
 
-  const imageVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        duration: 0.15,
-        ease: "easeOut"
+  // Preload all images on mount
+  useEffect(() => {
+    const allFilms = [...upcomingFilms, ...pastFilms];
+    const imageSources = allFilms.map(film => film.image);
+    
+    // Start preloading immediately
+    ImageLoader.preloadImages(imageSources);
+  }, []);
+
+  // Optimized film selection handler
+  const handleFilmClick = useCallback(async (film: Film) => {
+    if (!mountedRef.current) return;
+
+    // Set loading state immediately for better UX
+    setLoadingStates(prev => new Map(prev.set(film.image, true)));
+
+    try {
+      // Load image if not cached
+      await ImageLoader.loadImage(film.image, 'high');
+      
+      if (mountedRef.current) {
+        setActiveFilm(film);
+        setLoadingStates(prev => new Map(prev.set(film.image, false)));
       }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { 
-        duration: 0.1,
-        ease: "easeIn"
+    } catch (error) {
+      console.error(`Failed to load film image: ${film.image}`, error);
+      if (mountedRef.current) {
+        setLoadingStates(prev => new Map(prev.set(film.image, false)));
       }
     }
-  };
 
-  // Handle film selection for mobile and desktop
-  const handleFilmClick = (film: Film) => {
-    // On mobile, handle two-click behavior for links
+    // Handle mobile two-click behavior
     if (isMobile) {
       if (film.link) {
         if (clickedFilm === film.title) {
-          // Second click - open link
           window.open(film.link, '_blank');
           setClickedFilm(null);
         } else {
-          // First click - show preview
-          setActiveFilm(film);
           setClickedFilm(film.title);
           setHovered(true);
           setTimeout(() => setHovered(false), 300);
         }
       } else {
-        // No link, just show preview
-        setActiveFilm(film);
         setHovered(true);
         setTimeout(() => setHovered(false), 300);
       }
     } else {
-      // Desktop behavior - immediate link opening
       if (film.link) {
         window.open(film.link, '_blank');
       }
-      setActiveFilm(film);
+    }
+  }, [isMobile, clickedFilm, setHovered]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
     }
   };
   
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const isImageLoading = activeFilm ? loadingStates.get(activeFilm.image) || false : false;
+
   return (
     <motion.div
       className="min-h-screen w-screen flex flex-col items-center justify-center relative overflow-auto"
@@ -186,11 +198,6 @@ const Films: React.FC = () => {
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
         transition: { duration: 0.2, ease: "easeOut" }
-      }}
-      style={{
-        // Use CSS custom properties for smoother color transitions
-        '--bg-color': activeFilm ? activeFilm.theme.background : '#000000',
-        '--text-color': activeFilm ? activeFilm.theme.text : '#ffffff'
       }}
     >
       {/* Fixed header with proper spacing */}
@@ -216,13 +223,12 @@ const Films: React.FC = () => {
                   onMouseEnter={() => {
                     if (!isMobile) {
                       setHovered(true);
-                      setActiveFilm(film);
+                      handleFilmClick(film);
                     }
                   }}
                   onMouseLeave={() => {
                     if (!isMobile) {
                       setHovered(false);
-                      setActiveFilm(null);
                     }
                   }}
                   onClick={() => handleFilmClick(film)}
@@ -231,15 +237,14 @@ const Films: React.FC = () => {
                 >
                   <h3 className="text-lg md:text-2xl font-light tracking-wide">
                     {film.title} 
-                    <motion.span
-                      animate={{
+                    <span
+                      className="ml-4 transition-colors duration-150 ease-out"
+                      style={{
                         color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
                       }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
-                      className="ml-4"
                     >
                       {film.year}
-                    </motion.span>
+                    </span>
                   </h3>
                 </motion.div>
               ))}
@@ -256,13 +261,12 @@ const Films: React.FC = () => {
                   onMouseEnter={() => {
                     if (!isMobile) {
                       setHovered(true);
-                      setActiveFilm(film);
+                      handleFilmClick(film);
                     }
                   }}
                   onMouseLeave={() => {
                     if (!isMobile) {
                       setHovered(false);
-                      setActiveFilm(null);
                     }
                   }}
                   onClick={() => handleFilmClick(film)}
@@ -272,15 +276,14 @@ const Films: React.FC = () => {
                   <div className="flex flex-col">
                     <h3 className="text-lg md:text-2xl font-light tracking-wide">
                       {film.title} 
-                      <motion.span
-                        animate={{
+                      <span
+                        className="ml-4 transition-colors duration-150 ease-out"
+                        style={{
                           color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
-                        }} 
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="ml-4"
+                        }}
                       >
                         {film.year}
-                      </motion.span>
+                      </span>
                     </h3>
                     {isMobile && film.link && clickedFilm === film.title && (
                       <motion.span 
@@ -299,35 +302,34 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative film-preview-container">
-          {activeFilm && (
-            <div 
-              key={activeFilm.title}
-              className="absolute inset-0 flex flex-col items-center justify-center p-4 animate-fade-in"
-            >
-              <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 bg-gray-800/20 relative">
-                {/* Show loading state if image not loaded */}
-                {!loadedImages.has(activeFilm.image) && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-800/40">
+        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
+          {(activeFilm || isImageLoading) && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+              {isImageLoading ? (
+                <div className="flex flex-col items-center justify-center animate-fade-in">
+                  <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
                     <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
                   </div>
-                )}
-                <img 
-                  src={activeFilm.image} 
-                  alt={activeFilm.title} 
-                  className={`w-full h-full object-cover transition-opacity duration-150 ${
-                    loadedImages.has(activeFilm.image) ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  loading="eager"
-                  decoding="async"
-                  onLoad={() => {
-                    setLoadedImages(prev => new Set([...prev, activeFilm.image]));
-                  }}
-                />
-              </div>
-              <p className="text-sm md:text-lg leading-relaxed text-center max-w-md opacity-90">
-                {activeFilm.description}
-              </p>
+                  <p className="text-sm opacity-60">Chargement de l'image...</p>
+                </div>
+              ) : activeFilm ? (
+                <div className="animate-fade-in w-full">
+                  <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6">
+                    <img 
+                      src={activeFilm.image}
+                      alt={activeFilm.title} 
+                      className="w-full h-full object-cover"
+                      style={{ 
+                        opacity: 1,
+                        objectFit: 'cover'
+                      }}
+                    />
+                  </div>
+                  <p className="text-sm md:text-lg leading-relaxed text-center max-w-md opacity-90">
+                    {activeFilm.description}
+                  </p>
+                </div>
+              ) : null}
             </div>
           )}
         </div>
