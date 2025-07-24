@@ -19,6 +19,7 @@ interface Film {
 const Films: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);
+  const [clickedFilm, setClickedFilm] = useState<string | null>(null);
   
   const upcomingFilms: Film[] = [
     { 
@@ -87,61 +88,87 @@ const Films: React.FC = () => {
     }
   };
 
-  // Handle film selection for mobile
-  const handleFilmSelect = (film: Film) => {
-    setActiveFilm(film);
-    
-    // On mobile, briefly show hover effect on tap
+  // Handle film selection for mobile and desktop
+  const handleFilmClick = (film: Film) => {
+    // On mobile, handle two-click behavior for links
     if (isMobile) {
-      setHovered(true);
-      setTimeout(() => setHovered(false), 300);
+      if (film.link) {
+        if (clickedFilm === film.title) {
+          // Second click - open link
+          window.open(film.link, '_blank');
+          setClickedFilm(null);
+        } else {
+          // First click - show preview
+          setActiveFilm(film);
+          setClickedFilm(film.title);
+          setHovered(true);
+          setTimeout(() => setHovered(false), 300);
+        }
+      } else {
+        // No link, just show preview
+        setActiveFilm(film);
+        setHovered(true);
+        setTimeout(() => setHovered(false), 300);
+      }
+    } else {
+      // Desktop behavior - immediate link opening
+      if (film.link) {
+        window.open(film.link, '_blank');
+      }
+      setActiveFilm(film);
     }
   };
   
   return (
     <motion.div
-      className={`min-h-screen ${isMobile ? 'pt-16 pb-24' : ''} flex flex-col md:flex-row items-center justify-center p-4 md:p-8 relative`}
+      className="min-h-screen w-screen flex flex-col items-center justify-center relative overflow-auto"
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
         transition: { duration: 0.6 }
       }}
     >
-      <div className={`absolute ${isMobile ? 'top-4 left-4' : 'top-8 left-8'} z-10`}>
+      {/* Fixed header with proper spacing */}
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8">
         <HomeLink />
       </div>
       
-      <div className={`w-full max-w-6xl flex flex-col md:flex-row ${isMobile ? 'mt-8' : ''}`}>
+      {/* Main content with proper padding to avoid header overlap */}
+      <div className="w-full max-w-6xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className={`w-full ${isMobile ? 'mb-8' : 'md:w-2/5'} space-y-8 md:space-y-16`}
+          className="w-full md:w-2/5 space-y-8 md:space-y-16 mb-8 md:mb-0"
         >
           <motion.section variants={itemVariants}>
-            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
+            <h2 className="text-2xl md:text-4xl font-mono mb-6 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
             <div className="space-y-4 md:space-y-6">
               {upcomingFilms.map((film, index) => (
                 <motion.div
                   key={index}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2"
                   onMouseEnter={() => {
-                    !isMobile && setHovered(true);
-                    !isMobile && setActiveFilm(film);
+                    if (!isMobile) {
+                      setHovered(true);
+                      setActiveFilm(film);
+                    }
                   }}
                   onMouseLeave={() => {
-                    !isMobile && setHovered(false);
-                    !isMobile && setActiveFilm(null);
+                    if (!isMobile) {
+                      setHovered(false);
+                      setActiveFilm(null);
+                    }
                   }}
-                  onClick={() => handleFilmSelect(film)}
+                  onClick={() => handleFilmClick(film)}
                   whileHover={{ x: isMobile ? 0 : 20 }}
-                  whileTap={isMobile ? { scale: 0.95 } : {}}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <h3 className="text-xl md:text-2xl font-light tracking-wide">
+                  <h3 className="text-lg md:text-2xl font-light tracking-wide">
                     {film.title} 
                     <motion.span
                       animate={{
-                        color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                        color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
                       }}
                       className="ml-4"
                     >
@@ -154,57 +181,50 @@ const Films: React.FC = () => {
           </motion.section>
           
           <motion.section variants={itemVariants}>
-            <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">CLIPS</h2>
+            <h2 className="text-2xl md:text-4xl font-mono mb-6 md:mb-8 tracking-wider">CLIPS</h2>
             <div className="space-y-4 md:space-y-6">
               {pastFilms.map((film, index) => (
                 <motion.div
                   key={index}
-                  className="cursor-pointer"
+                  className="cursor-pointer py-2"
                   onMouseEnter={() => {
-                    !isMobile && setHovered(true);
-                    !isMobile && setActiveFilm(film);
-                  }}
-                  onMouseLeave={() => {
-                    !isMobile && setHovered(false);
-                    !isMobile && setActiveFilm(null);
-                  }}
-                  onClick={() => {
-                    handleFilmSelect(film);
-                    // Only open link on second click if film is already active
-                    if (isMobile && film.link && activeFilm?.title === film.title) {
-                      window.open(film.link, '_blank');
+                    if (!isMobile) {
+                      setHovered(true);
+                      setActiveFilm(film);
                     }
                   }}
+                  onMouseLeave={() => {
+                    if (!isMobile) {
+                      setHovered(false);
+                      setActiveFilm(null);
+                    }
+                  }}
+                  onClick={() => handleFilmClick(film)}
                   whileHover={{ x: isMobile ? 0 : 20 }}
-                  whileTap={isMobile ? { scale: 0.95 } : {}}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {film.link && !isMobile ? (
-                    <a href={film.link} target="_blank" rel="noopener noreferrer">
-                      <h3 className="text-xl md:text-2xl font-light tracking-wide">
-                        {film.title} 
-                        <motion.span
-                          animate={{
-                            color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
-                          }} 
-                          className="ml-4"
-                        >
-                          {film.year}
-                        </motion.span>
-                      </h3>
-                    </a>
-                  ) : (
-                    <h3 className="text-xl md:text-2xl font-light tracking-wide">
+                  <div className="flex flex-col">
+                    <h3 className="text-lg md:text-2xl font-light tracking-wide">
                       {film.title} 
                       <motion.span
                         animate={{
-                          color: activeFilm ? activeFilm.theme.accent : "#aaaaaa"
+                          color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
                         }} 
                         className="ml-4"
                       >
                         {film.year}
                       </motion.span>
                     </h3>
-                  )}
+                    {isMobile && film.link && clickedFilm === film.title && (
+                      <motion.span 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-sm opacity-60 mt-1"
+                      >
+                        Cliquez à nouveau pour ouvrir
+                      </motion.span>
+                    )}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -212,36 +232,27 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className={`w-full ${isMobile ? 'order-first mb-8' : 'md:w-3/5'} h-96 md:h-auto relative mt-8 md:mt-0`}>
+        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
           <AnimatePresence>
             {activeFilm && (
               <motion.div 
                 key={activeFilm.title}
-                className="absolute inset-0 flex flex-col items-center justify-center"
+                className="absolute inset-0 flex flex-col items-center justify-center p-4"
                 variants={imageVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
               >
-                <div className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-lg'} aspect-video overflow-hidden rounded-lg mb-4`}>
+                <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6">
                   <img 
                     src={activeFilm.image} 
                     alt={activeFilm.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className={`${isMobile ? 'text-sm' : 'text-base md:text-lg'} leading-relaxed text-center px-4`}>
+                <p className="text-sm md:text-lg leading-relaxed text-center max-w-md">
                   {activeFilm.description}
                 </p>
-                {isMobile && activeFilm.link && activeFilm.title === activeFilm.title && (
-                  <motion.button 
-                    onClick={() => window.open(activeFilm.link, '_blank')}
-                    className="mt-4 py-2 px-4 bg-black bg-opacity-40 rounded-md text-sm"
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Voir la vidéo
-                  </motion.button>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
