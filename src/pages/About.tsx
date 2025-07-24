@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import HomeLink from '../components/HomeLink';
 import { useCursor } from '../context/CursorContext';
@@ -14,6 +14,13 @@ interface TeamMember {
 
 const About = () => {
   const { setHovered, isMobile } = useCursor();
+  
+  // Reset scroll position when component mounts
+  useEffect(() => {
+    if (isMobile) {
+      window.scrollTo(0, 0);
+    }
+  }, [isMobile]);
   
   const teamMembers: TeamMember[] = [
     {
