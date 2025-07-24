@@ -18,11 +18,16 @@ const HomeLink: React.FC = () => {
     <Link to="/">
       <motion.h1
         className="text-2xl font-bold tracking-widest"
-        whileHover={{ scale: isMobile ? 1 : 1.1 }}
+        // Remove scale animation to prevent movement
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => !isMobile && setHovered(true)}
         onMouseLeave={() => !isMobile && setHovered(false)}
         onTouchStart={handleTouch}
+        // Add subtle opacity change instead of scale
+        whileHover={{ 
+          opacity: isMobile ? 1 : 0.8,
+          transition: { duration: 0.2 }
+        }}
       >
         HORUS
       </motion.h1>
