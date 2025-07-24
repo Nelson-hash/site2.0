@@ -100,23 +100,23 @@ const Films: React.FC = () => {
   
   return (
     <motion.div
-      className={`min-h-screen ${isMobile ? 'pb-20' : ''} flex flex-col md:flex-row items-center justify-center p-4 md:p-8 relative`}
+      className={`min-h-screen ${isMobile ? 'pt-16 pb-24' : ''} flex flex-col md:flex-row items-center justify-center p-4 md:p-8 relative`}
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
         transition: { duration: 0.6 }
       }}
     >
-      <div className="absolute top-8 left-8 z-10">
+      <div className={`absolute ${isMobile ? 'top-4 left-4' : 'top-8 left-8'} z-10`}>
         <HomeLink />
       </div>
       
-      <div className="w-full max-w-6xl flex flex-col md:flex-row">
+      <div className={`w-full max-w-6xl flex flex-col md:flex-row ${isMobile ? 'mt-8' : ''}`}>
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="w-full md:w-2/5 space-y-8 md:space-y-16"
+          className={`w-full ${isMobile ? 'mb-8' : 'md:w-2/5'} space-y-8 md:space-y-16`}
         >
           <motion.section variants={itemVariants}>
             <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
@@ -170,8 +170,8 @@ const Films: React.FC = () => {
                   }}
                   onClick={() => {
                     handleFilmSelect(film);
-                    // If there's a link and we're on mobile, open it
-                    if (isMobile && film.link) {
+                    // Only open link on second click if film is already active
+                    if (isMobile && film.link && activeFilm?.title === film.title) {
                       window.open(film.link, '_blank');
                     }
                   }}
@@ -212,7 +212,7 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-full md:w-3/5 h-96 md:h-auto relative mt-8 md:mt-0">
+        <div className={`w-full ${isMobile ? 'order-first mb-8' : 'md:w-3/5'} h-96 md:h-auto relative mt-8 md:mt-0`}>
           <AnimatePresence>
             {activeFilm && (
               <motion.div 
@@ -223,26 +223,24 @@ const Films: React.FC = () => {
                 animate="visible"
                 exit="exit"
               >
-                <div className="w-full max-w-lg aspect-video overflow-hidden rounded-lg mb-4">
+                <div className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-lg'} aspect-video overflow-hidden rounded-lg mb-4`}>
                   <img 
                     src={activeFilm.image} 
                     alt={activeFilm.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-base md:text-lg leading-relaxed text-center px-4">
+                <p className={`${isMobile ? 'text-sm' : 'text-base md:text-lg'} leading-relaxed text-center px-4`}>
                   {activeFilm.description}
                 </p>
-                {isMobile && activeFilm.link && (
-                  <motion.a 
-                    href={activeFilm.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="mt-4 py-2 px-4 bg-black bg-opacity-20 rounded-md"
+                {isMobile && activeFilm.link && activeFilm.title === activeFilm.title && (
+                  <motion.button 
+                    onClick={() => window.open(activeFilm.link, '_blank')}
+                    className="mt-4 py-2 px-4 bg-black bg-opacity-40 rounded-md text-sm"
                     whileTap={{ scale: 0.95 }}
                   >
                     Voir la vidéo
-                  </motion.a>
+                  </motion.button>
                 )}
               </motion.div>
             )}
