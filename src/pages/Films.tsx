@@ -111,7 +111,7 @@ const Films: React.FC = () => {
         <HomeLink />
       </div>
       
-      <div className="w-full max-w-6xl flex flex-col md:flex-row">
+      <div className="w-full max-w-7xl flex flex-col md:flex-row">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -211,26 +211,26 @@ const Films: React.FC = () => {
           </motion.section>
         </motion.div>
 
-        {/* Film preview section */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto relative mt-8 md:mt-0">
+        {/* Film preview section - Made 2x bigger */}
+        <div className="w-full md:w-1/2 h-96 md:h-auto relative mt-8 md:mt-0 flex items-center justify-center">
           <AnimatePresence>
             {activeFilm && (
               <motion.div 
                 key={activeFilm.title}
-                className="absolute inset-0 flex flex-col items-center"
+                className="w-full max-w-2xl flex flex-col items-center"
                 variants={imageVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
               >
-                <div className="w-full aspect-video overflow-hidden rounded-lg mb-4">
+                <div className="w-full h-80 md:h-96 lg:h-[500px] overflow-hidden rounded-lg mb-6 shadow-2xl">
                   <img 
                     src={activeFilm.image} 
                     alt={activeFilm.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-base md:text-lg leading-relaxed">
+                <p className="text-base md:text-lg leading-relaxed text-center px-4">
                   {activeFilm.description}
                 </p>
                 {isMobile && activeFilm.link && (
