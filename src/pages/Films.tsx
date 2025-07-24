@@ -116,7 +116,7 @@ const Films: React.FC = () => {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="w-full md:w-1/2 space-y-8 md:space-y-16"
+          className="w-full md:w-2/5 space-y-8 md:space-y-16"
         >
           <motion.section variants={itemVariants}>
             <h2 className="text-3xl md:text-4xl font-mono mb-4 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
@@ -212,25 +212,25 @@ const Films: React.FC = () => {
         </motion.div>
 
         {/* Film preview section */}
-        <div className="w-full md:w-1/2 h-64 md:h-auto relative mt-8 md:mt-0">
+        <div className="w-full md:w-3/5 h-96 md:h-auto relative mt-8 md:mt-0">
           <AnimatePresence>
             {activeFilm && (
               <motion.div 
                 key={activeFilm.title}
-                className="absolute inset-0 flex flex-col items-center"
+                className="absolute inset-0 flex flex-col items-center justify-center"
                 variants={imageVariants}
                 initial="hidden"
                 animate="visible"
                 exit="exit"
               >
-                <div className="w-full h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg mb-4">
+                <div className="w-full max-w-lg aspect-video overflow-hidden rounded-lg mb-4">
                   <img 
                     src={activeFilm.image} 
                     alt={activeFilm.title} 
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-base md:text-lg leading-relaxed">
+                <p className="text-base md:text-lg leading-relaxed text-center px-4">
                   {activeFilm.description}
                 </p>
                 {isMobile && activeFilm.link && (
