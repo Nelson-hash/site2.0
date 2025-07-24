@@ -39,17 +39,28 @@ html, body {
   }
 
   .nav-item {
-    @apply font-mono tracking-wider text-2xl lg:text-3xl xl:text-4xl transition-size duration-500 opacity-80 hover:opacity-100;
+    @apply font-mono tracking-wider text-2xl lg:text-3xl xl:text-4xl transition-all duration-500 opacity-80 hover:opacity-100;
   }
 
   .nav-item:hover {
     @apply transform scale-110 tracking-widest font-bold;
   }
 
-  /* Mobile touch targets */
+  /* Mobile navigation improvements */
   @media (max-width: 767px) {
     .nav-item {
-      @apply py-2 px-3 text-xl;
+      @apply py-3 px-4 text-xl font-semibold bg-black bg-opacity-60 rounded-md backdrop-blur-sm;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .mobile-nav-bar {
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
   }
 
@@ -71,33 +82,34 @@ html, body {
     transform: translate(-50%, -50%);
   }
   
-  /* Improved touch interactions for mobile */
+  /* Hide custom cursor on mobile */
   @media (max-width: 767px) {
-    .touch-target {
-      @apply min-h-[44px] min-w-[44px];
-    }
-
-    @media (max-width: 767px) {
-  /* Make navigation buttons more visible */
-  .nav-item {
-    @apply py-3 px-4 text-2xl font-semibold bg-black bg-opacity-40 rounded-md;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  }
-  
-  /* Ensure navigation bar is very visible */
-  .mobile-nav-bar {
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-  }
-  
-  /* Ensure nothing gets hidden under the bottom nav */
-  body {
-    padding-bottom: 80px;
-  }
-}
-    /* Hide custom cursor on mobile */
     .custom-cursor {
       @apply hidden;
+    }
+  }
+
+  /* Ensure proper spacing for mobile pages */
+  @media (max-width: 767px) {
+    .page-content {
+      padding-top: 80px;
+      padding-bottom: 100px;
+    }
+  }
+
+  /* Improved touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Better mobile text readability */
+  @media (max-width: 767px) {
+    h1, h2, h3 {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    
+    p {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     }
   }
 }
