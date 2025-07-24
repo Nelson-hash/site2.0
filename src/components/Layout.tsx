@@ -9,9 +9,9 @@ const Layout: React.FC = () => {
   return (
     <div className="relative h-full w-full">
       <Navigation />
-      <div className={`h-full flex items-center justify-center ${isMobile ? 'mt-0' : ''}`}>
-        {/* Add explicit centering for mobile */}
-        <div className={`${isMobile ? 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2' : ''}`}>
+      <div className={`h-full flex items-center justify-center ${isMobile ? 'pt-16 pb-24' : ''}`}>
+        {/* Center the logo properly for both mobile and desktop */}
+        <div className={`${isMobile ? 'flex items-center justify-center w-full' : ''}`}>
           <Logo />
         </div>
       </div>
