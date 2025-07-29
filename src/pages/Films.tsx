@@ -97,13 +97,21 @@ const Films: React.FC = () => {
       team: {
         main: [
           "Production : Horus Productions",
-          "Coproduction : Studio Méricourt & Ulysse Arnal",
-          "Scénario & Réalisation : Augustin Arnal"
+          "Coproduction : Studio Méricourt & Ulysse Arnal"
         ],
         additional: [
+          "Scénario : Augustin Arnal",
+          "Réalisation : Augustin Arnal & Justin Féral",
+          "Continuité : Carla De Almeida Pinto",
           "Cast : Tess Lepreux-Alles, Philippe Bertrand, Elise De Gaudemaris, Alban Pellet, Stanislas Bizeu, Christelle Ribeiro",
-          "Image : Léo Lacan",
-          "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas"
+          "Image : Léo Lacan, Thibault Lienhardt",
+          "Éclairage : Axel Peylet",
+          "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas",
+          "Post-production : Jonathan Le Borgne, Tristan Villeboux, Maxime Bardou",
+          "Musique : Pierre Bernier",
+          "Machinerie : Aristote Pham-Ba",
+          "Maquillage : Marie Haegeman",
+          "Régie : Jonah Webb, Alex Jourdan, Piotr"
         ]
       },
       theme: {
