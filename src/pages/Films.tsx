@@ -154,27 +154,30 @@ const Films: React.FC = () => {
       }
     }
 
-    // Handle mobile two-click behavior
+    // Always handle touch feedback for mobile
     if (isMobile) {
-      if (film.link) {
+      setHovered(true);
+      setTimeout(() => setHovered(false), 300);
+    }
+  }, [isMobile, setHovered]);
+
+  // Separate handler for link opening (only on click)
+  const handleLinkClick = useCallback((film: Film) => {
+    if (film.link) {
+      if (isMobile) {
+        // Mobile: two-click behavior
         if (clickedFilm === film.title) {
           window.open(film.link, '_blank');
           setClickedFilm(null);
         } else {
           setClickedFilm(film.title);
-          setHovered(true);
-          setTimeout(() => setHovered(false), 300);
         }
       } else {
-        setHovered(true);
-        setTimeout(() => setHovered(false), 300);
-      }
-    } else {
-      if (film.link) {
+        // Desktop: direct click to open
         window.open(film.link, '_blank');
       }
     }
-  }, [isMobile, clickedFilm, setHovered]);
+  }, [isMobile, clickedFilm]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -206,7 +209,7 @@ const Films: React.FC = () => {
       </div>
       
       {/* Main content with proper padding to avoid header overlap */}
-      <div className="w-full max-w-6xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8">
+      <div className="w-full max-w-7xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -214,7 +217,7 @@ const Films: React.FC = () => {
           className="w-full md:w-2/5 space-y-8 md:space-y-16 mb-8 md:mb-0"
         >
           <motion.section variants={itemVariants}>
-            <h2 className="text-2xl md:text-4xl font-mono mb-6 md:mb-8 tracking-wider">COURTS-METRAGES</h2>
+            <h2 className="text-2xl md:text-4xl font-light mb-6 md:mb-8 tracking-wide films-section-header">COURTS-METRAGES</h2>
             <div className="space-y-4 md:space-y-6">
               {upcomingFilms.map((film, index) => (
                 <motion.div
@@ -231,7 +234,10 @@ const Films: React.FC = () => {
                       setHovered(false);
                     }
                   }}
-                  onClick={() => handleFilmClick(film)}
+                  onClick={() => {
+                    handleFilmClick(film);
+                    handleLinkClick(film);
+                  }}
                   whileHover={{ x: isMobile ? 0 : 20 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -252,7 +258,7 @@ const Films: React.FC = () => {
           </motion.section>
           
           <motion.section variants={itemVariants}>
-            <h2 className="text-2xl md:text-4xl font-mono mb-6 md:mb-8 tracking-wider">CLIPS</h2>
+            <h2 className="text-2xl md:text-4xl font-light mb-6 md:mb-8 tracking-wide films-section-header">CLIPS</h2>
             <div className="space-y-4 md:space-y-6">
               {pastFilms.map((film, index) => (
                 <motion.div
@@ -269,7 +275,10 @@ const Films: React.FC = () => {
                       setHovered(false);
                     }
                   }}
-                  onClick={() => handleFilmClick(film)}
+                  onClick={() => {
+                    handleFilmClick(film);
+                    handleLinkClick(film);
+                  }}
                   whileHover={{ x: isMobile ? 0 : 20 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -301,10 +310,10 @@ const Films: React.FC = () => {
           </motion.section>
         </motion.div>
 
-        {/* Film preview section */}
-        <div className="w-full md:w-3/5 min-h-[300px] md:min-h-[400px] relative">
+        {/* Film preview section - moved more to the right with justified text */}
+        <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[400px] relative">
           {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-center p-4">
               {isImageLoading ? (
                 <div className="flex flex-col items-center justify-center animate-fade-in">
                   <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
@@ -325,7 +334,7 @@ const Films: React.FC = () => {
                       }}
                     />
                   </div>
-                  <p className="text-sm md:text-lg leading-relaxed text-center max-w-md opacity-90">
+                  <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify max-w-md opacity-90">
                     {activeFilm.description}
                   </p>
                 </div>
