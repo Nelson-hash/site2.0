@@ -91,10 +91,10 @@ const About = () => {
         <HomeLink />
       </div>
       
-      {/* Main content with proper padding to avoid header overlap */}
-      <div className="relative z-10 w-full pt-20 md:pt-16 px-4 md:px-6 pb-8 md:pb-12">
+      {/* Main content with proper padding to avoid header overlap and allow scrolling */}
+      <div className="relative z-10 w-full pt-20 md:pt-16 px-4 md:px-6 pb-20 md:pb-12">
         <motion.div 
-          className="w-full mx-auto"
+          className="w-full mx-auto min-h-screen md:min-h-0"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
