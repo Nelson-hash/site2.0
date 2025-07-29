@@ -347,10 +347,10 @@ const Films: React.FC = () => {
           </motion.section>
         </motion.div>
 
-        {/* Film preview section - mobile-friendly layout */}
-        <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[400px] relative">
+        {/* Film preview section - mobile-friendly layout with fixed positioning */}
+        <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[500px] relative">
           {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-start md:justify-center p-4 pt-8 md:pt-4">
+            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-start md:justify-start p-4 pt-8 md:pt-4">
               {isImageLoading ? (
                 <div className="flex flex-col items-center justify-center animate-fade-in">
                   <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
@@ -361,7 +361,7 @@ const Films: React.FC = () => {
               ) : activeFilm ? (
                 <div className="animate-fade-in w-full">
                   {/* Top section: Image and Team info side by side on desktop */}
-                  <div className="flex flex-col md:flex-row md:gap-8 mb-6">
+                  <div className="flex flex-col md:flex-row md:gap-8">
                     {/* Left column: Image and Description */}
                     <div className="w-full md:w-3/5 flex-shrink-0 mb-6 md:mb-0">
                       {/* Image */}
@@ -385,41 +385,65 @@ const Films: React.FC = () => {
                       </div>
                     </div>
                     
-                    {/* Right column: Team information */}
+                    {/* Right column: Team information with fixed height container */}
                     <div className="w-full md:w-2/5 flex flex-col justify-start">
                       <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
                         Équipe
                       </h4>
-                      <div className="space-y-1 text-center md:text-left">
-                        {activeFilm.team.main.map((member, index) => (
-                          <p key={index} className="text-xs md:text-sm opacity-80 font-light leading-relaxed">
-                            {member}
-                          </p>
-                        ))}
-                        
-                        {/* Additional team info (expandable for films that have it) */}
-                        {activeFilm.team.additional && (
-                          <>
-                            {expandedTeam === activeFilm.title && (
-                              <div className="space-y-1 mt-2">
-                                {activeFilm.team.additional.map((member, index) => (
-                                  <p key={index} className="text-xs md:text-sm opacity-80 font-light leading-relaxed">
-                                    {member}
-                                  </p>
-                                ))}
+                      
+                      {/* Fixed height container to prevent jumping */}
+                      <div className="min-h-[200px] md:min-h-[300px]">
+                        <div className="space-y-1 text-center md:text-left">
+                          {activeFilm.team.main.map((member, index) => (
+                            <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed" 
+                               style={{ color: activeFilm.theme.text }}>
+                              <span className="opacity-70">{member.split(' : ')[0]} :</span>{' '}
+                              <span style={{ color: activeFilm.theme.accent }}>{member.split(' : ')[1]}</span>
+                            </p>
+                          ))}
+                          
+                          {/* Additional team info (expandable for films that have it) */}
+                          {activeFilm.team.additional && (
+                            <>
+                              {expandedTeam === activeFilm.title && (
+                                <div className="space-y-1 mt-3 pt-2 border-t border-opacity-20" style={{ borderColor: activeFilm.theme.text }}>
+                                  {activeFilm.team.additional.map((member, index) => {
+                                    const role = member.split(' : ')[0];
+                                    const names = member.split(' : ')[1];
+                                    
+                                    // Different colors for different sections
+                                    let nameColor = activeFilm.theme.accent;
+                                    if (role === 'Cast') nameColor = activeFilm.theme.background === '#ffffff' ? '#8B4513' : '#DEB887'; // Brown tones
+                                    else if (role === 'Image' || role === 'Éclairage') nameColor = activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB'; // Blue tones
+                                    else if (role === 'Son' || role === 'Musique') nameColor = activeFilm.theme.background === '#ffffff' ? '#228B22' : '#98FB98'; // Green tones
+                                    else if (role === 'Post-production') nameColor = activeFilm.theme.background === '#ffffff' ? '#800080' : '#DA70D6'; // Purple tones
+                                    else if (role.includes('Réalisation') || role === 'Scénario') nameColor = activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1'; // Red tones
+                                    
+                                    return (
+                                      <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed">
+                                        <span className="opacity-70" style={{ color: activeFilm.theme.text }}>{role} :</span>{' '}
+                                        <span style={{ color: nameColor }}>{names}</span>
+                                      </p>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              
+                              {/* Button positioned at bottom of container */}
+                              <div className="absolute bottom-0 left-0 right-0 pt-4">
+                                <button
+                                  onClick={() => toggleTeamExpansion(activeFilm.title)}
+                                  onMouseEnter={() => !isMobile && setHovered(true)}
+                                  onMouseLeave={() => !isMobile && setHovered(false)}
+                                  className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity underline"
+                                  style={{ color: activeFilm.theme.accent }}
+                                >
+                                  {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
+                                </button>
                               </div>
-                            )}
-                            <button
-                              onClick={() => toggleTeamExpansion(activeFilm.title)}
-                              onMouseEnter={() => !isMobile && setHovered(true)}
-                              onMouseLeave={() => !isMobile && setHovered(false)}
-                              className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity mt-2 underline"
-                              style={{ color: activeFilm.theme.accent }}
-                            >
-                              {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
-                            </button>
-                          </>
-                        )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
