@@ -360,11 +360,12 @@ const Films: React.FC = () => {
                 </div>
               ) : activeFilm ? (
                 <div className="animate-fade-in w-full">
-                  {/* Mobile: Stacked layout | Desktop: Image and Team side by side */}
+                  {/* Top section: Image and Team info side by side on desktop */}
                   <div className="flex flex-col md:flex-row md:gap-8 mb-6">
-                    {/* Image section */}
+                    {/* Left column: Image and Description */}
                     <div className="w-full md:w-3/5 flex-shrink-0 mb-6 md:mb-0">
-                      <div className="w-full aspect-video overflow-hidden rounded-lg">
+                      {/* Image */}
+                      <div className="w-full aspect-video overflow-hidden rounded-lg mb-4">
                         <img 
                           src={activeFilm.image}
                           alt={activeFilm.title} 
@@ -375,10 +376,17 @@ const Films: React.FC = () => {
                           }}
                         />
                       </div>
+                      
+                      {/* Description - stays under the image */}
+                      <div className="w-full">
+                        <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90">
+                          {activeFilm.description}
+                        </p>
+                      </div>
                     </div>
                     
-                    {/* Team information section */}
-                    <div className="w-full md:w-2/5 flex flex-col justify-start mb-6 md:mb-0">
+                    {/* Right column: Team information */}
+                    <div className="w-full md:w-2/5 flex flex-col justify-start">
                       <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
                         Équipe
                       </h4>
@@ -414,17 +422,6 @@ const Films: React.FC = () => {
                         )}
                       </div>
                     </div>
-                  </div>
-                  
-                  {/* Bottom section: Description - more prominent when team is expanded */}
-                  <div className="w-full">
-                    <p className={`text-sm md:text-lg leading-relaxed text-center md:text-justify transition-all duration-300 ${
-                      expandedTeam === activeFilm.title 
-                        ? 'opacity-100 font-medium text-base md:text-xl' 
-                        : 'opacity-90'
-                    }`}>
-                      {activeFilm.description}
-                    </p>
                   </div>
                 </div>
               ) : null}
