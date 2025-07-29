@@ -339,10 +339,10 @@ const Films: React.FC = () => {
           </motion.section>
         </motion.div>
 
-        {/* Film preview section - moved more to the right with justified text */}
+        {/* Film preview section - mobile-friendly layout */}
         <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[400px] relative">
           {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-center p-4">
+            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-start md:justify-center p-4 pt-8 md:pt-4">
               {isImageLoading ? (
                 <div className="flex flex-col items-center justify-center animate-fade-in">
                   <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
@@ -352,10 +352,10 @@ const Films: React.FC = () => {
                 </div>
               ) : activeFilm ? (
                 <div className="animate-fade-in w-full">
-                  {/* Top section: Image and Team info side by side on desktop */}
+                  {/* Mobile: Stacked layout | Desktop: Image and Team side by side */}
                   <div className="flex flex-col md:flex-row md:gap-8 mb-6">
                     {/* Image section */}
-                    <div className="w-full md:w-3/5 flex-shrink-0 mb-4 md:mb-0">
+                    <div className="w-full md:w-3/5 flex-shrink-0 mb-6 md:mb-0">
                       <div className="w-full aspect-video overflow-hidden rounded-lg">
                         <img 
                           src={activeFilm.image}
@@ -370,7 +370,7 @@ const Films: React.FC = () => {
                     </div>
                     
                     {/* Team information section */}
-                    <div className="w-full md:w-2/5 flex flex-col justify-start">
+                    <div className="w-full md:w-2/5 flex flex-col justify-start mb-6 md:mb-0">
                       <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
                         Équipe
                       </h4>
