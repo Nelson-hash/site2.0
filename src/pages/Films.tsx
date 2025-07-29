@@ -246,12 +246,12 @@ const Films: React.FC = () => {
       </div>
       
       {/* Main content with proper padding to avoid header overlap */}
-      <div className="w-full max-w-7xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8">
+      <div className="w-full max-w-7xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8 md:items-center md:justify-center md:min-h-screen">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="w-full md:w-2/5 space-y-8 md:space-y-16 mb-8 md:mb-0"
+          className="w-full md:w-2/5 space-y-8 md:space-y-16 mb-8 md:mb-0 md:flex md:flex-col md:justify-center"
         >
           <motion.section variants={itemVariants}>
             <h2 className="text-2xl md:text-4xl font-light mb-6 md:mb-8 tracking-wide films-section-header">COURTS-METRAGES</h2>
@@ -405,19 +405,26 @@ const Films: React.FC = () => {
                           {/* Additional team info (expandable for films that have it) */}
                           {activeFilm.team.additional && (
                             <>
+                              <button
+                                onClick={() => toggleTeamExpansion(activeFilm.title)}
+                                onMouseEnter={() => !isMobile && setHovered(true)}
+                                onMouseLeave={() => !isMobile && setHovered(false)}
+                                className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity mt-2 underline"
+                                style={{ color: activeFilm.theme.accent }}
+                              >
+                                {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
+                              </button>
+                              
                               {expandedTeam === activeFilm.title && (
                                 <div className="space-y-1 mt-3 pt-2 border-t border-opacity-20" style={{ borderColor: activeFilm.theme.text }}>
                                   {activeFilm.team.additional.map((member, index) => {
                                     const role = member.split(' : ')[0];
                                     const names = member.split(' : ')[1];
                                     
-                                    // Different colors for different sections
-                                    let nameColor = activeFilm.theme.accent;
-                                    if (role === 'Cast') nameColor = activeFilm.theme.background === '#ffffff' ? '#8B4513' : '#DEB887'; // Brown tones
-                                    else if (role === 'Image' || role === 'Éclairage') nameColor = activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB'; // Blue tones
-                                    else if (role === 'Son' || role === 'Musique') nameColor = activeFilm.theme.background === '#ffffff' ? '#228B22' : '#98FB98'; // Green tones
-                                    else if (role === 'Post-production') nameColor = activeFilm.theme.background === '#ffffff' ? '#800080' : '#DA70D6'; // Purple tones
-                                    else if (role.includes('Réalisation') || role === 'Scénario') nameColor = activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1'; // Red tones
+                                    // Alternate red and blue colors
+                                    const nameColor = index % 2 === 0 
+                                      ? (activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1') // Red tones
+                                      : (activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB'); // Blue tones
                                     
                                     return (
                                       <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed">
@@ -428,19 +435,6 @@ const Films: React.FC = () => {
                                   })}
                                 </div>
                               )}
-                              
-                              {/* Button positioned at bottom of container */}
-                              <div className="absolute bottom-0 left-0 right-0 pt-4">
-                                <button
-                                  onClick={() => toggleTeamExpansion(activeFilm.title)}
-                                  onMouseEnter={() => !isMobile && setHovered(true)}
-                                  onMouseLeave={() => !isMobile && setHovered(false)}
-                                  className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity underline"
-                                  style={{ color: activeFilm.theme.accent }}
-                                >
-                                  {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
-                                </button>
-                              </div>
                             </>
                           )}
                         </div>
