@@ -105,12 +105,17 @@ html, body {
 
   /* Better mobile text readability - excluding films page section headers */
   @media (max-width: 767px) {
-    h1, h2, h3 {
+    h1, h3 {
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    
+    /* General h2 styling with shadow */
+    h2 {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
     }
     
     /* Remove text shadow for films page section headers */
-    .films-section-header {
+    h2.films-section-header {
       text-shadow: none !important;
     }
     
