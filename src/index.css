@@ -103,10 +103,15 @@ html, body {
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* Better mobile text readability */
+  /* Better mobile text readability - excluding films page section headers */
   @media (max-width: 767px) {
     h1, h2, h3 {
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+    
+    /* Remove text shadow for films page section headers */
+    .films-section-header {
+      text-shadow: none !important;
     }
     
     p {
