@@ -8,7 +8,10 @@ interface Film {
   year: string;
   image: string;
   description: string;
-  team?: string[];
+  team: {
+    main: string[];
+    additional?: string[];
+  };
   link?: string;
   theme: {
     background: string;
@@ -82,6 +85,7 @@ const Films: React.FC = () => {
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);  
   const [clickedFilm, setClickedFilm] = useState<string | null>(null);
   const [loadingStates, setLoadingStates] = useState<Map<string, boolean>>(new Map());
+  const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const mountedRef = useRef(true);
   
   const upcomingFilms: Film[] = [
@@ -90,7 +94,18 @@ const Films: React.FC = () => {
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
       description: "Julien et Marie vont passer le week-end à la campagne, dans la maison de famille de Marie, où les attendent ses trois frères et sœurs. Tandis que les bouteilles défilent et que la soirée bat son plein, un drame se produit.",
-      team: ["Gabriel HUSSEIN", "Matias THOMAS", "Pierre MOSKVINE", "Nelson REMY"],
+      team: {
+        main: [
+          "Production : Horus Productions",
+          "Coproduction : Studio Méricourt & Ulysse Arnal",
+          "Scénario & Réalisation : Augustin Arnal"
+        ],
+        additional: [
+          "Cast : Tess Lepreux-Alles, Philippe Bertrand, Elise De Gaudemaris, Alban Pellet, Stanislas Bizeu, Christelle Ribeiro",
+          "Image : Léo Lacan",
+          "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas"
+        ]
+      },
       theme: {
         background: "#ffffff",
         text: "#000000",
@@ -105,7 +120,13 @@ const Films: React.FC = () => {
       year: "2024",
       image: "/images/films/qishui.jpg",
       description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬",
-      team: ["Gabriel HUSSEIN", "Matias THOMAS"],
+      team: {
+        main: [
+          "Production : Horus Productions",
+          "Son : Papiteddybear & Pense",
+          "Image : Gabhus"
+        ]
+      },
       link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
       theme: {
         background: "#d8e1e8",
@@ -163,6 +184,11 @@ const Films: React.FC = () => {
       setTimeout(() => setHovered(false), 300);
     }
   }, [isMobile, setHovered]);
+
+  // Handle expand/collapse of team details
+  const toggleTeamExpansion = useCallback((filmTitle: string) => {
+    setExpandedTeam(prev => prev === filmTitle ? null : filmTitle);
+  }, []);
 
   // Separate handler for link opening (only on click)
   const handleLinkClick = useCallback((film: Film) => {
@@ -316,7 +342,7 @@ const Films: React.FC = () => {
         {/* Film preview section - moved more to the right with justified text */}
         <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[400px] relative">
           {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col md:flex-row items-center md:items-start justify-center p-4 md:gap-8">
+            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-center p-4">
               {isImageLoading ? (
                 <div className="flex flex-col items-center justify-center animate-fade-in">
                   <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
@@ -325,45 +351,70 @@ const Films: React.FC = () => {
                   <p className="text-sm opacity-60">Chargement de l'image...</p>
                 </div>
               ) : activeFilm ? (
-                <>
-                  {/* Image section */}
-                  <div className="animate-fade-in w-full md:w-1/2 flex-shrink-0">
-                    <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 md:mb-0">
-                      <img 
-                        src={activeFilm.image}
-                        alt={activeFilm.title} 
-                        className="w-full h-full object-cover"
-                        style={{ 
-                          opacity: 1,
-                          objectFit: 'cover'
-                        }}
-                      />
+                <div className="animate-fade-in w-full">
+                  {/* Top section: Image and Team info side by side on desktop */}
+                  <div className="flex flex-col md:flex-row md:gap-8 mb-6">
+                    {/* Image section */}
+                    <div className="w-full md:w-3/5 flex-shrink-0 mb-4 md:mb-0">
+                      <div className="w-full aspect-video overflow-hidden rounded-lg">
+                        <img 
+                          src={activeFilm.image}
+                          alt={activeFilm.title} 
+                          className="w-full h-full object-cover"
+                          style={{ 
+                            opacity: 1,
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Team information section */}
+                    <div className="w-full md:w-2/5 flex flex-col justify-start">
+                      <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
+                        Équipe
+                      </h4>
+                      <div className="space-y-1 text-center md:text-left">
+                        {activeFilm.team.main.map((member, index) => (
+                          <p key={index} className="text-xs md:text-sm opacity-80 font-light leading-relaxed">
+                            {member}
+                          </p>
+                        ))}
+                        
+                        {/* Additional team info (expandable for films that have it) */}
+                        {activeFilm.team.additional && (
+                          <>
+                            {expandedTeam === activeFilm.title && (
+                              <div className="space-y-1 mt-2">
+                                {activeFilm.team.additional.map((member, index) => (
+                                  <p key={index} className="text-xs md:text-sm opacity-80 font-light leading-relaxed">
+                                    {member}
+                                  </p>
+                                ))}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => toggleTeamExpansion(activeFilm.title)}
+                              onMouseEnter={() => !isMobile && setHovered(true)}
+                              onMouseLeave={() => !isMobile && setHovered(false)}
+                              className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity mt-2 underline"
+                              style={{ color: activeFilm.theme.accent }}
+                            >
+                              {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Text content section */}
-                  <div className="animate-fade-in w-full md:w-1/2 flex flex-col justify-start">
-                    <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90 mb-6">
+                  {/* Bottom section: Description */}
+                  <div className="w-full">
+                    <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90">
                       {activeFilm.description}
                     </p>
-                    
-                    {/* Team information */}
-                    {activeFilm.team && activeFilm.team.length > 0 && (
-                      <div className="text-center md:text-left">
-                        <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-2 uppercase">
-                          Équipe
-                        </h4>
-                        <div className="space-y-1">
-                          {activeFilm.team.map((member, index) => (
-                            <p key={index} className="text-sm md:text-base opacity-80 font-light">
-                              {member}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </>
+                </div>
               ) : null}
             </div>
           )}
