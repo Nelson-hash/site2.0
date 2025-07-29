@@ -8,6 +8,7 @@ interface Film {
   year: string;
   image: string;
   description: string;
+  team?: string[];
   link?: string;
   theme: {
     background: string;
@@ -89,6 +90,7 @@ const Films: React.FC = () => {
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
       description: "Julien et Marie vont passer le week-end à la campagne, dans la maison de famille de Marie, où les attendent ses trois frères et sœurs. Tandis que les bouteilles défilent et que la soirée bat son plein, un drame se produit.",
+      team: ["Gabriel HUSSEIN", "Matias THOMAS", "Pierre MOSKVINE", "Nelson REMY"],
       theme: {
         background: "#ffffff",
         text: "#000000",
@@ -103,6 +105,7 @@ const Films: React.FC = () => {
       year: "2024",
       image: "/images/films/qishui.jpg",
       description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬",
+      team: ["Gabriel HUSSEIN", "Matias THOMAS"],
       link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
       theme: {
         background: "#d8e1e8",
@@ -313,7 +316,7 @@ const Films: React.FC = () => {
         {/* Film preview section - moved more to the right with justified text */}
         <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[400px] relative">
           {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-center p-4">
+            <div className="absolute inset-0 flex flex-col md:flex-row items-center md:items-start justify-center p-4 md:gap-8">
               {isImageLoading ? (
                 <div className="flex flex-col items-center justify-center animate-fade-in">
                   <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
@@ -322,22 +325,45 @@ const Films: React.FC = () => {
                   <p className="text-sm opacity-60">Chargement de l'image...</p>
                 </div>
               ) : activeFilm ? (
-                <div className="animate-fade-in w-full">
-                  <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6">
-                    <img 
-                      src={activeFilm.image}
-                      alt={activeFilm.title} 
-                      className="w-full h-full object-cover"
-                      style={{ 
-                        opacity: 1,
-                        objectFit: 'cover'
-                      }}
-                    />
+                <>
+                  {/* Image section */}
+                  <div className="animate-fade-in w-full md:w-1/2 flex-shrink-0">
+                    <div className="w-full max-w-md md:max-w-lg aspect-video overflow-hidden rounded-lg mb-6 md:mb-0">
+                      <img 
+                        src={activeFilm.image}
+                        alt={activeFilm.title} 
+                        className="w-full h-full object-cover"
+                        style={{ 
+                          opacity: 1,
+                          objectFit: 'cover'
+                        }}
+                      />
+                    </div>
                   </div>
-                  <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify max-w-md opacity-90">
-                    {activeFilm.description}
-                  </p>
-                </div>
+                  
+                  {/* Text content section */}
+                  <div className="animate-fade-in w-full md:w-1/2 flex flex-col justify-start">
+                    <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90 mb-6">
+                      {activeFilm.description}
+                    </p>
+                    
+                    {/* Team information */}
+                    {activeFilm.team && activeFilm.team.length > 0 && (
+                      <div className="text-center md:text-left">
+                        <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-2 uppercase">
+                          Équipe
+                        </h4>
+                        <div className="space-y-1">
+                          {activeFilm.team.map((member, index) => (
+                            <p key={index} className="text-sm md:text-base opacity-80 font-light">
+                              {member}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : null}
             </div>
           )}
