@@ -100,18 +100,18 @@ const Films: React.FC = () => {
           "Coproduction : Studio Méricourt & Ulysse Arnal"
         ],
         additional: [
-          "Scénario : Augustin Arnal",
-          "Réalisation : Augustin Arnal & Justin Féral",
-          "Continuité : Carla De Almeida Pinto",
           "Cast : Tess Lepreux-Alles, Philippe Bertrand, Elise De Gaudemaris, Alban Pellet, Stanislas Bizeu, Christelle Ribeiro",
-          "Image : Léo Lacan, Thibault Lienhardt",
+          "Continuité : Carla De Almeida Pinto",
           "Éclairage : Axel Peylet",
-          "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas",
-          "Post-production : Jonathan Le Borgne, Tristan Villeboux, Maxime Bardou",
-          "Musique : Pierre Bernier",
+          "Image : Léo Lacan, Thibault Lienhardt",
           "Machinerie : Aristote Pham-Ba",
           "Maquillage : Marie Haegeman",
-          "Régie : Jonah Webb, Alex Jourdan, Piotr"
+          "Musique : Pierre Bernier",
+          "Post-production : Jonathan Le Borgne, Tristan Villeboux, Maxime Bardou",
+          "Réalisation : Augustin Arnal & Justin Féral",
+          "Régie : Jonah Webb, Alex Jourdan, Piotr",
+          "Scénario : Augustin Arnal",
+          "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas"
         ]
       },
       theme: {
@@ -416,9 +416,13 @@ const Films: React.FC = () => {
                     </div>
                   </div>
                   
-                  {/* Bottom section: Description */}
+                  {/* Bottom section: Description - more prominent when team is expanded */}
                   <div className="w-full">
-                    <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90">
+                    <p className={`text-sm md:text-lg leading-relaxed text-center md:text-justify transition-all duration-300 ${
+                      expandedTeam === activeFilm.title 
+                        ? 'opacity-100 font-medium text-base md:text-xl' 
+                        : 'opacity-90'
+                    }`}>
                       {activeFilm.description}
                     </p>
                   </div>
