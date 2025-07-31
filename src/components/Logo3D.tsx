@@ -3,12 +3,10 @@ import { useCursor } from '../context/CursorContext';
 
 const Logo3D: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<any>(null);
-  const rendererRef = useRef<any>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('Initializing...');
+  const [isLoaded, setIsLoaded] = useState(false);
   const modelRef = useRef<any>(null);
   const animationIdRef = useRef<number | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [loadError, setLoadError] = useState(false);
   const { setHovered, isMobile } = useCursor();
 
   useEffect(() => {
@@ -16,37 +14,49 @@ const Logo3D: React.FC = () => {
 
     const initScene = async () => {
       try {
+        setDebugInfo('Loading Three.js...');
+        
+        // Check if file exists first
+        try {
+          const response = await fetch('/horus.glb', { method: 'HEAD' });
+          if (!response.ok) {
+            setDebugInfo(`GLB file not found: ${response.status}`);
+            createCSSFallback();
+            return;
+          }
+          setDebugInfo('GLB file found, loading Three.js...');
+        } catch (e) {
+          setDebugInfo('Cannot check GLB file existence');
+          createCSSFallback();
+          return;
+        }
+
         // Load Three.js from CDN
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js');
+        setDebugInfo('Three.js loaded, loading GLTFLoader...');
         
         // Load GLTFLoader from CDN
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js');
+        setDebugInfo('GLTFLoader loaded, initializing scene...');
 
         if (!isMounted || !mountRef.current) return;
 
         const THREE = (window as any).THREE;
         if (!THREE || !THREE.GLTFLoader) {
-          throw new Error('Three.js or GLTFLoader not loaded');
+          throw new Error('Three.js or GLTFLoader not available');
         }
 
         // Scene setup
         const scene = new THREE.Scene();
-        sceneRef.current = scene;
-
-        // Camera setup
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
         camera.position.set(0, 0, 5);
 
-        // Renderer setup
         const renderer = new THREE.WebGLRenderer({ 
           alpha: true,
-          antialias: true,
-          powerPreference: "high-performance"
+          antialias: true
         });
         renderer.setSize(80, 80);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.setClearColor(0x000000, 0);
-        rendererRef.current = renderer;
 
         // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -56,6 +66,8 @@ const Logo3D: React.FC = () => {
         directionalLight.position.set(1, 1, 1);
         scene.add(directionalLight);
 
+        setDebugInfo('Loading GLB model...');
+
         // Load GLB model
         const loader = new THREE.GLTFLoader();
         
@@ -64,7 +76,7 @@ const Logo3D: React.FC = () => {
           (gltf: any) => {
             if (!isMounted) return;
             
-            console.log('GLB loaded successfully:', gltf);
+            setDebugInfo('GLB loaded successfully!');
             const model = gltf.scene;
             modelRef.current = model;
 
@@ -92,16 +104,16 @@ const Logo3D: React.FC = () => {
 
             scene.add(model);
             setIsLoaded(true);
+            setDebugInfo('');
           },
           (progress: any) => {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+            const percent = Math.round((progress.loaded / progress.total) * 100);
+            setDebugInfo(`Loading: ${percent}%`);
           },
           (error: any) => {
-            console.error('Error loading GLB:', error);
-            if (isMounted) {
-              setLoadError(true);
-              createFallbackLogo(THREE, scene);
-            }
+            console.error('GLB loading error:', error);
+            setDebugInfo(`GLB load error: ${error.message}`);
+            createGeometricFallback(THREE, scene);
           }
         );
 
@@ -122,18 +134,14 @@ const Logo3D: React.FC = () => {
         animate();
 
       } catch (error) {
-        console.error('Failed to initialize 3D scene:', error);
-        if (isMounted) {
-          setLoadError(true);
-          setIsLoaded(true); // Show the fallback
-        }
+        console.error('3D initialization error:', error);
+        setDebugInfo(`Init error: ${error}`);
+        createCSSFallback();
       }
     };
 
-    // Helper function to load scripts
     const loadScript = (src: string): Promise<void> => {
       return new Promise((resolve, reject) => {
-        // Check if script is already loaded
         if (document.querySelector(`script[src="${src}"]`)) {
           resolve();
           return;
@@ -147,79 +155,37 @@ const Logo3D: React.FC = () => {
       });
     };
 
-    // Fallback geometric logo
-    const createFallbackLogo = (THREE: any, scene: any) => {
+    const createGeometricFallback = (THREE: any, scene: any) => {
       const group = new THREE.Group();
       
-      // Create Horus eye-like shape
-      const outerGeometry = new THREE.RingGeometry(0.5, 0.8, 16);
-      const outerMaterial = new THREE.MeshLambertMaterial({ 
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide
-      });
-      const outerRing = new THREE.Mesh(outerGeometry, outerMaterial);
-      
-      const innerGeometry = new THREE.CircleGeometry(0.3, 16);
-      const innerMaterial = new THREE.MeshLambertMaterial({ 
+      // Create a simple Horus eye
+      const geometry = new THREE.SphereGeometry(0.8, 16, 16);
+      const material = new THREE.MeshLambertMaterial({ 
         color: 0xffffff,
         transparent: true,
         opacity: 0.9
       });
-      const innerCircle = new THREE.Mesh(innerGeometry, innerMaterial);
-      innerCircle.position.z = 0.01;
       
-      // Add a small pupil
-      const pupilGeometry = new THREE.CircleGeometry(0.1, 8);
-      const pupilMaterial = new THREE.MeshLambertMaterial({ 
-        color: 0x000000,
-        transparent: true,
-        opacity: 0.8
-      });
-      const pupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-      pupil.position.z = 0.02;
-      
-      group.add(outerRing);
-      group.add(innerCircle);
-      group.add(pupil);
+      const sphere = new THREE.Mesh(geometry, material);
+      group.add(sphere);
       
       modelRef.current = group;
       scene.add(group);
       setIsLoaded(true);
+      setDebugInfo('');
+    };
+
+    const createCSSFallback = () => {
+      setIsLoaded(true);
+      setDebugInfo('');
     };
 
     initScene();
 
     return () => {
       isMounted = false;
-      
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
-      }
-      if (mountRef.current && rendererRef.current?.domElement) {
-        try {
-          mountRef.current.removeChild(rendererRef.current.domElement);
-        } catch (e) {
-          // Element might have already been removed
-        }
-      }
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
-      
-      // Clean up geometries and materials
-      if (sceneRef.current) {
-        sceneRef.current.traverse((object: any) => {
-          if (object.isMesh) {
-            object.geometry.dispose();
-            if (Array.isArray(object.material)) {
-              object.material.forEach((material: any) => material.dispose());
-            } else {
-              object.material.dispose();
-            }
-          }
-        });
       }
     };
   }, []);
@@ -243,6 +209,60 @@ const Logo3D: React.FC = () => {
     }
   };
 
+  // If no 3D content loaded, show CSS version
+  if (isLoaded && !modelRef.current) {
+    return (
+      <div 
+        className="logo-3d-container cursor-pointer relative"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouch}
+        style={{
+          width: '80px',
+          height: '80px',
+          perspective: '1000px',
+          transition: 'transform 0.2s ease-out'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'scale(1.1)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        <div
+          className="w-full h-full relative"
+          style={{
+            transformStyle: 'preserve-3d',
+            animation: 'rotateX 4s linear infinite'
+          }}
+        >
+          <div
+            className="absolute inset-0 rounded-full border-2 border-white bg-transparent"
+            style={{
+              transform: 'rotateX(0deg) translateZ(20px)',
+              opacity: 0.9
+            }}
+          >
+            <div
+              className="absolute top-1/2 left-1/2 w-6 h-6 bg-white rounded-full"
+              style={{
+                transform: 'translate(-50%, -50%)',
+                opacity: 0.8
+              }}
+            />
+          </div>
+        </div>
+        <style jsx>{`
+          @keyframes rotateX {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <div 
       className="logo-3d-container cursor-pointer relative"
@@ -255,16 +275,6 @@ const Logo3D: React.FC = () => {
         opacity: isLoaded ? 1 : 0.3,
         transition: 'opacity 0.5s ease-in-out, transform 0.2s ease-out'
       }}
-      onMouseOver={() => {
-        if (mountRef.current) {
-          mountRef.current.style.transform = 'scale(1.1)';
-        }
-      }}
-      onMouseOut={() => {
-        if (mountRef.current) {
-          mountRef.current.style.transform = 'scale(1)';
-        }
-      }}
     >
       <div 
         ref={mountRef} 
@@ -275,7 +285,13 @@ const Logo3D: React.FC = () => {
         }}
       />
       
-      {!isLoaded && !loadError && (
+      {debugInfo && (
+        <div className="absolute -bottom-8 left-0 text-xs text-white/60 whitespace-nowrap">
+          {debugInfo}
+        </div>
+      )}
+      
+      {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-4 h-4 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
         </div>
