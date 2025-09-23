@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
-import Logo3D from '../components/Logo3D';
 
 interface Film {
   title: string;
@@ -241,11 +240,9 @@ const Films: React.FC = () => {
         transition: { duration: 0.2, ease: "easeOut" }
       }}
     >
-      {/* Fixed header with proper spacing */}
-      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start">
+      {/* Fixed header with proper spacing - removed 3D logo */}
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
         <HomeLink />
-        {/* 3D Logo in top right corner */}
-        <Logo3D />
       </div>
       
       {/* Main content with proper padding to avoid header overlap */}
