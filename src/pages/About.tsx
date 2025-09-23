@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import HomeLink from '../components/HomeLink';
-import Logo3D from '../components/Logo3D';
 import { useCursor } from '../context/CursorContext';
 import VideoBackground from '../components/VideoBackground';
 
@@ -87,11 +86,9 @@ const About = () => {
     <div className="about-page relative min-h-screen w-screen overflow-auto">
       <VideoBackground />
       
-      {/* Fixed header with proper spacing */}
-      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start">
+      {/* Fixed header with proper spacing - removed 3D logo */}
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
         <HomeLink />
-        {/* 3D Logo in top right corner */}
-        <Logo3D />
       </div>
       
       {/* Main content with proper padding to avoid header overlap and allow scrolling */}
