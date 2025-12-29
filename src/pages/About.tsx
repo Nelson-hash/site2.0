@@ -38,13 +38,6 @@ const About = () => {
       image: "/images/team/matias.jpg",
     },
     {
-      firstName: "Pierre",
-      lastName: "MOSKVINE",
-      role: "",
-      email: "pierre@horusprod.com",
-      image: "/images/team/pierre.jpg",
-    },
-    {
       firstName: "Nelson",
       lastName: "REMY",
       role: "",
