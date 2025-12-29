@@ -3,11 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
+// --- INTERFACES ---
 interface Film {
   title: string;
   year: string;
   image: string;
   description: string;
+  // New property for the gallery slider
+  gallery?: string[]; 
   team: {
     main: string[];
     additional?: string[];
@@ -20,49 +23,34 @@ interface Film {
   };
 }
 
-// Image loader utility with better performance
+// --- UTILITIES ---
 class ImageLoader {
   private static cache = new Map<string, HTMLImageElement>();
   private static loadingPromises = new Map<string, Promise<HTMLImageElement>>();
 
   static async loadImage(src: string, priority: 'high' | 'low' = 'low'): Promise<HTMLImageElement> {
-    // Return cached image immediately
-    if (this.cache.has(src)) {
-      return this.cache.get(src)!;
-    }
+    if (this.cache.has(src)) return this.cache.get(src)!;
+    if (this.loadingPromises.has(src)) return this.loadingPromises.get(src)!;
 
-    // Return existing loading promise to avoid duplicate requests
-    if (this.loadingPromises.has(src)) {
-      return this.loadingPromises.get(src)!;
-    }
-
-    // Create new loading promise
     const loadingPromise = new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image();
-      
-      const cleanup = () => {
-        this.loadingPromises.delete(src);
-      };
+      const cleanup = () => this.loadingPromises.delete(src);
 
       img.onload = () => {
         this.cache.set(src, img);
         cleanup();
         resolve(img);
       };
-
       img.onerror = () => {
         cleanup();
         reject(new Error(`Failed to load image: ${src}`));
       };
 
-      // Optimize loading
       img.decoding = 'async';
       img.loading = 'eager';
       if (priority === 'high' && 'fetchPriority' in img) {
         (img as any).fetchPriority = 'high';
       }
-
-      // Set src last to trigger loading
       img.src = src;
     });
 
@@ -72,7 +60,6 @@ class ImageLoader {
 
   static preloadImages(sources: string[]) {
     sources.forEach((src, index) => {
-      // Load first image with high priority
       this.loadImage(src, index === 0 ? 'high' : 'low').catch(() => {
         console.warn(`Failed to preload: ${src}`);
       });
@@ -80,12 +67,18 @@ class ImageLoader {
   }
 }
 
+// --- MAIN COMPONENT ---
 const Films: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
   const [activeFilm, setActiveFilm] = useState<Film | null>(null);  
   const [clickedFilm, setClickedFilm] = useState<string | null>(null);
   const [loadingStates, setLoadingStates] = useState<Map<string, boolean>>(new Map());
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
+  
+  // -- Lightbox State --
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
   const mountedRef = useRef(true);
   
   const upcomingFilms: Film[] = [
@@ -93,6 +86,13 @@ const Films: React.FC = () => {
       title: "NUIT BLANCHE", 
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
+      // Define the gallery explicitly here
+      gallery: [
+        "/images/films/nuit-blanche.jpg",
+        "/images/films/nuit-blanche2.jpg",
+        "/images/films/nuit-blanche3.jpg",
+        "/images/films/nuit-blanche4.jpg"
+      ],
       description: "Julien et Marie vont passer le week-end à la campagne, dans la maison de famille de Marie, où les attendent ses trois frères et sœurs. Tandis que les bouteilles défilent et que la soirée bat son plein, un drame se produit.",
       team: {
         main: [
@@ -124,6 +124,11 @@ const Films: React.FC = () => {
       title: "GUEULE D'ANGE", 
       year: "2025",
       image: "/images/films/gueule-dange.jpg",
+      gallery: [
+        "/images/films/gueule-dange.jpg",
+        "/images/films/gueule-dange2.jpg",
+        "/images/films/gueule-dange3.jpg"
+      ],
       description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
       team: {
         main: [
@@ -143,9 +148,9 @@ const Films: React.FC = () => {
         ]
       },
       theme: {
-        background: "#f0efed", // Soft Stone/Off-White
-        text: "#1a1a1a",       // Soft Black
-        accent: "#757575"      // Medium Grey
+        background: "#f0efed", 
+        text: "#1a1a1a",        
+        accent: "#757575"      
       }
     }
   ];
@@ -172,7 +177,7 @@ const Films: React.FC = () => {
     }
   ];
 
-  // Reset scroll position when component mounts
+  // Reset scroll position
   useEffect(() => {
     window.scrollTo(0, 0);
     document.body.scrollTop = 0;
@@ -183,26 +188,37 @@ const Films: React.FC = () => {
     };
   }, []);
 
-  // Preload all images on mount
+  // Preload images
   useEffect(() => {
     const allFilms = [...upcomingFilms, ...pastFilms];
     const imageSources = allFilms.map(film => film.image);
-    
-    // Start preloading immediately
     ImageLoader.preloadImages(imageSources);
   }, []);
 
-  // Optimized film selection handler
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    if (!isLightboxOpen || !activeFilm || !activeFilm.gallery) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowRight') {
+        nextLightboxImage();
+      } else if (e.key === 'ArrowLeft') {
+        prevLightboxImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, activeFilm, lightboxIndex]);
+
   const handleFilmClick = useCallback(async (film: Film) => {
     if (!mountedRef.current) return;
-
-    // Set loading state immediately for better UX
     setLoadingStates(prev => new Map(prev.set(film.image, true)));
 
     try {
-      // Load image if not cached
       await ImageLoader.loadImage(film.image, 'high');
-      
       if (mountedRef.current) {
         setActiveFilm(film);
         setLoadingStates(prev => new Map(prev.set(film.image, false)));
@@ -214,23 +230,19 @@ const Films: React.FC = () => {
       }
     }
 
-    // Always handle touch feedback for mobile
     if (isMobile) {
       setHovered(true);
       setTimeout(() => setHovered(false), 300);
     }
   }, [isMobile, setHovered]);
 
-  // Handle expand/collapse of team details
   const toggleTeamExpansion = useCallback((filmTitle: string) => {
     setExpandedTeam(prev => prev === filmTitle ? null : filmTitle);
   }, []);
 
-  // Separate handler for link opening (only on click)
   const handleLinkClick = useCallback((film: Film) => {
     if (film.link) {
       if (isMobile) {
-        // Mobile: two-click behavior
         if (clickedFilm === film.title) {
           window.open(film.link, '_blank');
           setClickedFilm(null);
@@ -238,18 +250,39 @@ const Films: React.FC = () => {
           setClickedFilm(film.title);
         }
       } else {
-        // Desktop: direct click to open
         window.open(film.link, '_blank');
       }
     }
   }, [isMobile, clickedFilm]);
 
+  // -- Lightbox Logic --
+  const openLightbox = () => {
+    // Only open if we have gallery images
+    if (activeFilm && activeFilm.gallery && activeFilm.gallery.length > 0) {
+      setLightboxIndex(0);
+      setIsLightboxOpen(true);
+    }
+  };
+
+  const closeLightbox = () => {
+    setIsLightboxOpen(false);
+  };
+
+  const nextLightboxImage = () => {
+    if (activeFilm && activeFilm.gallery) {
+      setLightboxIndex((prev) => (prev + 1) % activeFilm.gallery!.length);
+    }
+  };
+
+  const prevLightboxImage = () => {
+    if (activeFilm && activeFilm.gallery) {
+      setLightboxIndex((prev) => (prev - 1 + activeFilm.gallery!.length) % activeFilm.gallery!.length);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   };
   
   const itemVariants = {
@@ -268,12 +301,10 @@ const Films: React.FC = () => {
         transition: { duration: 0.2, ease: "easeOut" }
       }}
     >
-      {/* Fixed header with proper spacing - removed 3D logo */}
       <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
         <HomeLink />
       </div>
       
-      {/* Main content with proper padding to avoid header overlap */}
       <div className="w-full max-w-7xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8 md:items-center md:justify-center md:min-h-screen">
         <motion.div
           initial="hidden"
@@ -288,32 +319,16 @@ const Films: React.FC = () => {
                 <motion.div
                   key={index}
                   className="cursor-pointer py-2"
-                  onMouseEnter={() => {
-                    if (!isMobile) {
-                      setHovered(true);
-                      handleFilmClick(film);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (!isMobile) {
-                      setHovered(false);
-                    }
-                  }}
-                  onClick={() => {
-                    handleFilmClick(film);
-                    handleLinkClick(film);
-                  }}
+                  onMouseEnter={() => !isMobile && (setHovered(true), handleFilmClick(film))}
+                  onMouseLeave={() => !isMobile && setHovered(false)}
+                  onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
                   whileHover={{ x: isMobile ? 0 : 20 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <h3 className="text-lg md:text-2xl font-light tracking-wide">
                     {film.title} 
-                    <span
-                      className="ml-4 transition-colors duration-150 ease-out"
-                      style={{
-                        color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
-                      }}
-                    >
+                    <span className="ml-4 transition-colors duration-150 ease-out"
+                      style={{ color: activeFilm?.title === film.title ? activeFilm.theme.accent : "#aaaaaa" }}>
                       {film.year}
                     </span>
                   </h3>
@@ -329,33 +344,17 @@ const Films: React.FC = () => {
                 <motion.div
                   key={index}
                   className="cursor-pointer py-2"
-                  onMouseEnter={() => {
-                    if (!isMobile) {
-                      setHovered(true);
-                      handleFilmClick(film);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (!isMobile) {
-                      setHovered(false);
-                    }
-                  }}
-                  onClick={() => {
-                    handleFilmClick(film);
-                    handleLinkClick(film);
-                  }}
+                  onMouseEnter={() => !isMobile && (setHovered(true), handleFilmClick(film))}
+                  onMouseLeave={() => !isMobile && setHovered(false)}
+                  onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
                   whileHover={{ x: isMobile ? 0 : 20 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <div className="flex flex-col">
                     <h3 className="text-lg md:text-2xl font-light tracking-wide">
                       {film.title} 
-                      <span
-                        className="ml-4 transition-colors duration-150 ease-out"
-                        style={{
-                          color: activeFilm?.title === film.title ? (activeFilm.theme.accent) : "#aaaaaa"
-                        }}
-                      >
+                      <span className="ml-4 transition-colors duration-150 ease-out"
+                        style={{ color: activeFilm?.title === film.title ? activeFilm.theme.accent : "#aaaaaa" }}>
                         {film.year}
                       </span>
                     </h3>
@@ -375,7 +374,6 @@ const Films: React.FC = () => {
           </motion.section>
         </motion.div>
 
-        {/* Film preview section - mobile-friendly layout with fixed positioning */}
         <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[500px] relative">
           {(activeFilm || isImageLoading) && (
             <div className="absolute inset-0 flex flex-col items-center md:items-start justify-start md:justify-start p-4 pt-8 md:pt-4">
@@ -388,24 +386,27 @@ const Films: React.FC = () => {
                 </div>
               ) : activeFilm ? (
                 <div className="animate-fade-in w-full">
-                  {/* Top section: Image and Team info side by side on desktop */}
                   <div className="flex flex-col md:flex-row md:gap-8">
-                    {/* Left column: Image and Description */}
                     <div className="w-full md:w-3/5 flex-shrink-0 mb-6 md:mb-0">
-                      {/* Image */}
-                      <div className="w-full aspect-video overflow-hidden rounded-lg mb-4">
+                      
+                      {/* --- CLICKABLE IMAGE --- */}
+                      <div 
+                        className={`w-full aspect-video overflow-hidden rounded-lg mb-4 ${activeFilm.gallery ? 'cursor-zoom-in' : ''}`}
+                        onClick={openLightbox}
+                      >
                         <img 
                           src={activeFilm.image}
                           alt={activeFilm.title} 
-                          className="w-full h-full object-cover"
-                          style={{ 
-                            opacity: 1,
-                            objectFit: 'cover'
-                          }}
+                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                          style={{ opacity: 1, objectFit: 'cover' }}
                         />
                       </div>
+                      {activeFilm.gallery && activeFilm.gallery.length > 0 && (
+                        <p className="text-xs text-center mb-2 opacity-50 italic">
+                          (Cliquez sur l'image pour voir la galerie)
+                        </p>
+                      )}
                       
-                      {/* Description - stays under the image */}
                       <div className="w-full">
                         <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90">
                           {activeFilm.description}
@@ -413,13 +414,10 @@ const Films: React.FC = () => {
                       </div>
                     </div>
                     
-                    {/* Right column: Team information with fixed height container */}
                     <div className="w-full md:w-2/5 flex flex-col justify-start">
                       <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
                         Équipe
                       </h4>
-                      
-                      {/* Fixed height container to prevent jumping */}
                       <div className="min-h-[200px] md:min-h-[300px]">
                         <div className="space-y-1 text-center md:text-left">
                           {activeFilm.team.main.map((member, index) => (
@@ -430,7 +428,6 @@ const Films: React.FC = () => {
                             </p>
                           ))}
                           
-                          {/* Additional team info (expandable for films that have it) */}
                           {activeFilm.team.additional && (
                             <>
                               <button
@@ -448,11 +445,9 @@ const Films: React.FC = () => {
                                   {activeFilm.team.additional.map((member, index) => {
                                     const role = member.split(' : ')[0];
                                     const names = member.split(' : ')[1];
-                                    
-                                    // Alternate red and blue colors
                                     const nameColor = index % 2 === 0 
-                                      ? (activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1') // Red tones
-                                      : (activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB'); // Blue tones
+                                      ? (activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1')
+                                      : (activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB');
                                     
                                     return (
                                       <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed">
@@ -475,6 +470,73 @@ const Films: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* --- LIGHTBOX MODAL --- */}
+      <AnimatePresence>
+        {isLightboxOpen && activeFilm && activeFilm.gallery && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={closeLightbox}
+          >
+            {/* Close Button */}
+            <button 
+              className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
+              onClick={closeLightbox}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Left Arrow */}
+            <button 
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50"
+              onClick={(e) => { e.stopPropagation(); prevLightboxImage(); }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+
+            {/* Main Image */}
+            <div 
+              className="relative w-full h-full flex items-center justify-center p-8 md:p-12"
+              onClick={(e) => e.stopPropagation()} // Prevent clicking image from closing
+            >
+              <motion.img
+                key={lightboxIndex}
+                src={activeFilm.gallery[lightboxIndex]}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                alt={`${activeFilm.title} screenshot ${lightboxIndex + 1}`}
+                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
+              />
+              
+              {/* Counter */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm font-light tracking-widest">
+                {lightboxIndex + 1} / {activeFilm.gallery.length}
+              </div>
+            </div>
+
+            {/* Right Arrow */}
+            <button 
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50"
+              onClick={(e) => { e.stopPropagation(); nextLightboxImage(); }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </motion.div>
   );
 };
