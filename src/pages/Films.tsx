@@ -128,10 +128,11 @@ const Films: React.FC = () => {
       team: {
         main: [
           "Production : Horus Productions",
-          "Réalisation : Jonas Aragones, assisté par Gil Ingrand"
+          "Réalisation & Scenario : Jonas Aragones"
         ],
         additional: [
           "Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter",
+          "Réalisation : Jonas Aragones, assisté par Gil Ingrand",
           "Maquillage : Candice Thro, Elsa Desurvire",
           "Continuité : Gena",
           "Régie : Nathan Deymié, assisté par Nils Archi",
