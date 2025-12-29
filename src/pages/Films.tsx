@@ -119,6 +119,33 @@ const Films: React.FC = () => {
         text: "#000000",
         accent: "#555555"
       }
+    },
+    { 
+      title: "GUEULE D'ANGE", 
+      year: "2025",
+      image: "/images/films/gueule-dange.jpg",
+      description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
+      team: {
+        main: [
+          "Production : Horus Productions",
+          "Réalisation : Jonas Aragones, assisté par Gil Ingrand"
+        ],
+        additional: [
+          "Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter",
+          "Maquillage : Candice Thro, Elsa Desurvire",
+          "Continuité : Gena",
+          "Régie : Nathan Deymié, assisté par Nils Archi",
+          "Image : Marta Romanzo, assistée par Jonas Bellaiche",
+          "Machinerie : Kellyan",
+          "Décoration : Félix Spinosi, assisté par Jawel Coudert",
+          "Costumes : Violette"
+        ]
+      },
+      theme: {
+        background: "#f0efed", // Soft Stone/Off-White
+        text: "#1a1a1a",       // Soft Black
+        accent: "#757575"      // Medium Grey
+      }
     }
   ];
   
