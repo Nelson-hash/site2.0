@@ -6,7 +6,6 @@ import { useCursor } from '../context/CursorContext';
 const HomeLink: React.FC = () => {
   const { setHovered, isMobile } = useCursor();
 
-  // Handle touch events for mobile
   const handleTouch = () => {
     if (isMobile) {
       setHovered(true);
@@ -17,21 +16,20 @@ const HomeLink: React.FC = () => {
   return (
     <Link to="/" className="inline-block">
       <motion.div
-        // UPDATED STYLES: Matches the Navigation links exactly (Bold, Uppercase, Smaller size)
-        className="font-bold tracking-widest uppercase text-sm md:text-base"
+        // UPDATED STYLES: Bold, Uppercase, Bigger size to match Navigation
+        className="font-bold tracking-widest uppercase text-xl md:text-2xl"
         
-        // Remove scale animation to prevent layout shifts, use opacity instead
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => !isMobile && setHovered(true)}
         onMouseLeave={() => !isMobile && setHovered(false)}
         onTouchStart={handleTouch}
         
-        initial={{ opacity: 0.6 }}
+        initial={{ opacity: 0.7 }}
         whileHover={{ 
           opacity: 1,
           transition: { duration: 0.2 }
         }}
-        style={{ color: 'inherit' }} // Inherits color from the parent (Films page handles text color)
+        style={{ color: 'inherit' }} 
       >
         HORUS
       </motion.div>
