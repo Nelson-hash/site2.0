@@ -127,7 +127,7 @@ const Films: React.FC = () => {
         "/images/films/gueule-dange2.jpg",
         "/images/films/gueule-dange3.jpg"
       ],
-      description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir Le Portrait avec qui il semble partager un lien obscur et vital.",
+      description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
       team: {
         main: [
           "Production : Horus Productions",
@@ -209,8 +209,6 @@ const Films: React.FC = () => {
 
   // Handle Scroll Reset when Active Film Changes
   useEffect(() => {
-    // This ensures that whenever we switch from List to Detail (or vice versa),
-    // we snap to top instantly to avoid the "teleport/lag" effect.
     window.scrollTo(0, 0);
   }, [activeFilm]);
 
@@ -236,7 +234,6 @@ const Films: React.FC = () => {
   }, []);
 
   const handleBackToList = useCallback(() => {
-    // We do NOT use smooth scrolling here to prevent the "jump"
     setActiveFilm(null);
     setExpandedTeam(null);
     setClickedFilm(null);
@@ -327,12 +324,8 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* min-h-screen ensures the container doesn't collapse during the exit animation, 
-         which causes the scroll jump 
-      */}
       <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-24 pb-12 px-4 md:px-8 min-h-screen">
         
-        {/* 'mode="wait"' is crucial: it ensures the exiting component finishes completely before the new one starts */}
         <AnimatePresence mode="wait">
           
           {/* --- LIST VIEW --- */}
@@ -341,9 +334,10 @@ const Films: React.FC = () => {
               key="list-view"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.2 } }} // Fast exit
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
               className="w-full flex flex-col md:flex-row md:items-start md:justify-center gap-16 md:gap-32"
             >
+              {/* Short Films */}
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-end text-center md:text-right">
                 <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">COURTS-METRAGES</h2>
                 <div className="space-y-6">
@@ -366,6 +360,7 @@ const Films: React.FC = () => {
                 </div>
               </div>
 
+              {/* Clips - FIX APPLIED HERE: Only handleFilmClick, removed handleLinkClick */}
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
                 <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">CLIPS</h2>
                 <div className="space-y-6">
@@ -375,7 +370,8 @@ const Films: React.FC = () => {
                       className="cursor-pointer group"
                       onMouseEnter={() => !isMobile && setHovered(true)}
                       onMouseLeave={() => !isMobile && setHovered(false)}
-                      onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
+                      // UPDATED: Now it only opens the project view first
+                      onClick={() => handleFilmClick(film)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -470,6 +466,8 @@ const Films: React.FC = () => {
                     <p className="text-sm md:text-base leading-relaxed opacity-90 text-justify">
                       {activeFilm.description}
                     </p>
+                    
+                    {/* External Link Button */}
                     {activeFilm.link && (
                       <div className="mt-4">
                         <button 
