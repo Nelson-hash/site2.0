@@ -1,36 +1,61 @@
 import React from 'react';
-import NavigationItem from './NavigationItem';
+import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 
 const Navigation: React.FC = () => {
-  const { isMobile } = useCursor();
+  const { setHovered, isMobile } = useCursor();
+  const location = useLocation();
 
-  // Mobile navigation layout - removed 3D logo
-  if (isMobile) {
-    return (
-      <>
-        {/* Bottom navigation bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between items-center bg-black bg-opacity-80 z-20 mobile-nav-bar">
-          <NavigationItem title="FILMS" href="/films" position="bottom-left" />
-          <NavigationItem title="A PROPOS" href="/about" position="bottom-right" />
-        </div>
-      </>
-    );
-  }
+  const isFilmsPage = location.pathname === '/films';
+  const isAboutPage = location.pathname === '/about';
 
-  // Desktop navigation - removed 3D logo
+  // HELPER: Defines the font style for the menu links.
+  // Currently set to 'font-bold' per your request.
+  // change 'font-bold' to 'font-light' if you want it to match the "Films" page headers exactly.
+  const linkStyle = "font-bold tracking-widest uppercase text-sm md:text-base relative group";
+
   return (
-    <div className="absolute inset-0 p-6 md:p-10">
-      <div className="relative h-full w-full">
-        {/* Navigation items */}
-        <div className="absolute top-0 left-0">
-          <NavigationItem title="FILMS" href="/films" position="top-left" />
-        </div>
-        <div className="absolute bottom-0 right-0">
-          <NavigationItem title="A PROPOS" href="/about" position="bottom-right" />
-        </div>
+    <nav className="fixed top-0 left-0 w-full p-4 md:p-8 z-40 flex justify-between items-start pointer-events-none text-white mix-blend-difference">
+      
+      {/* LEFT LINK: FILMS */}
+      <div className="pointer-events-auto">
+        <Link 
+          to="/films"
+          onMouseEnter={() => !isMobile && setHovered(true)}
+          onMouseLeave={() => !isMobile && setHovered(false)}
+          className={`${linkStyle} ${isFilmsPage ? 'opacity-100' : 'opacity-60 hover:opacity-100'} transition-opacity duration-300`}
+        >
+          Films
+          {/* Underline animation for active state */}
+          {isFilmsPage && (
+            <motion.div 
+              layoutId="underline"
+              className="absolute -bottom-1 left-0 w-full h-[1px] bg-white"
+            />
+          )}
+        </Link>
       </div>
-    </div>
+
+      {/* RIGHT LINK: A PROPOS */}
+      <div className="pointer-events-auto">
+        <Link 
+          to="/about"
+          onMouseEnter={() => !isMobile && setHovered(true)}
+          onMouseLeave={() => !isMobile && setHovered(false)}
+          className={`${linkStyle} ${isAboutPage ? 'opacity-100' : 'opacity-60 hover:opacity-100'} transition-opacity duration-300`}
+        >
+          A propos
+           {/* Underline animation for active state */}
+           {isAboutPage && (
+            <motion.div 
+              layoutId="underline"
+              className="absolute -bottom-1 left-0 w-full h-[1px] bg-white"
+            />
+          )}
+        </Link>
+      </div>
+    </nav>
   );
 };
 
