@@ -15,7 +15,10 @@ const About = lazy(() => import('./pages/About'));
 // Loading component
 const PageLoader = () => (
   <div className="h-screen w-screen flex items-center justify-center bg-black">
-    <div className="animate-pulse text-xl">HORUS</div>
+    {/* Updated font style here: Bold, Wide Tracking, Uppercase */}
+    <div className="animate-pulse text-2xl font-bold tracking-widest uppercase text-white">
+      HORUS
+    </div>
   </div>
 );
 
