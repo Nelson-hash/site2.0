@@ -76,7 +76,7 @@ const Films: React.FC = () => {
   
   // -- Lightbox / Slider State --
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Used for both on-page slider and lightbox
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
 
   const mountedRef = useRef(true);
   
@@ -175,7 +175,7 @@ const Films: React.FC = () => {
     }
   ];
 
-  // Reset scroll position
+  // Reset scroll position on mount
   useEffect(() => {
     window.scrollTo(0, 0);
     return () => { mountedRef.current = false; };
@@ -207,6 +207,13 @@ const Films: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isLightboxOpen, activeFilm, currentImageIndex]);
 
+  // Handle Scroll Reset when Active Film Changes
+  useEffect(() => {
+    // This ensures that whenever we switch from List to Detail (or vice versa),
+    // we snap to top instantly to avoid the "teleport/lag" effect.
+    window.scrollTo(0, 0);
+  }, [activeFilm]);
+
   const handleFilmClick = useCallback(async (film: Film) => {
     if (!mountedRef.current) return;
     setLoadingStates(prev => new Map(prev.set(film.image, true)));
@@ -226,12 +233,10 @@ const Films: React.FC = () => {
         setLoadingStates(prev => new Map(prev.set(film.image, false)));
       }
     }
-    
-    // Scroll to top when entering detail view
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleBackToList = useCallback(() => {
+    // We do NOT use smooth scrolling here to prevent the "jump"
     setActiveFilm(null);
     setExpandedTeam(null);
     setClickedFilm(null);
@@ -247,7 +252,7 @@ const Films: React.FC = () => {
     }
   }, []);
 
-  // -- Image Navigation Logic (Shared by On-Page Slider and Lightbox) --
+  // -- Image Navigation Logic --
   const nextImage = () => {
     if (activeFilm && activeFilm.gallery) {
       setCurrentImageIndex((prev) => (prev + 1) % activeFilm.gallery!.length);
@@ -287,7 +292,6 @@ const Films: React.FC = () => {
 
   const isImageLoading = activeFilm ? loadingStates.get(activeFilm.image) || false : false;
 
-  // Determine current image source to display
   const currentImageSrc = activeFilm 
     ? (activeFilm.gallery ? activeFilm.gallery[currentImageIndex] : activeFilm.image)
     : "";
@@ -298,7 +302,7 @@ const Films: React.FC = () => {
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
-        transition: { duration: 0.5, ease: "easeInOut" }
+        transition: { duration: 0.4, ease: "easeOut" }
       }}
     >
       <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start pointer-events-none">
@@ -306,7 +310,7 @@ const Films: React.FC = () => {
           <HomeLink />
         </div>
         
-        {/* Back Button (Only visible when activeFilm is present) */}
+        {/* Back Button */}
         <AnimatePresence>
           {activeFilm && (
             <motion.button
@@ -323,16 +327,21 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-24 pb-12 px-4 md:px-8">
+      {/* min-h-screen ensures the container doesn't collapse during the exit animation, 
+         which causes the scroll jump 
+      */}
+      <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-24 pb-12 px-4 md:px-8 min-h-screen">
         
-        {/* --- LIST VIEW (Films Menu) --- */}
+        {/* 'mode="wait"' is crucial: it ensures the exiting component finishes completely before the new one starts */}
         <AnimatePresence mode="wait">
-          {!activeFilm && (
+          
+          {/* --- LIST VIEW --- */}
+          {!activeFilm ? (
             <motion.div
               key="list-view"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.3 } }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }} // Fast exit
               className="w-full flex flex-col md:flex-row md:items-start md:justify-center gap-16 md:gap-32"
             >
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-end text-center md:text-right">
@@ -379,21 +388,17 @@ const Films: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* --- DETAIL VIEW (Single Project) --- */}
-        <AnimatePresence mode="wait">
-          {activeFilm && (
+          ) : (
+            /* --- DETAIL VIEW --- */
             <motion.div
               key="detail-view"
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               className="w-full h-full flex flex-col items-center"
             >
-              {/* Title Header in Detail View */}
+              {/* Title Header */}
               <div className="w-full text-center mb-8 md:mb-12">
                  <h1 className="text-3xl md:text-6xl font-light tracking-widest uppercase mb-2">
                    {activeFilm.title}
@@ -411,30 +416,22 @@ const Films: React.FC = () => {
                     </div>
                   ) : (
                     <div className="relative w-full aspect-video overflow-hidden rounded-sm group select-none">
-                      {/* Image with Swipe */}
                       <motion.img 
-                        key={currentImageIndex} // Key change triggers animation
+                        key={currentImageIndex} 
                         src={currentImageSrc}
                         alt={activeFilm.title}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.3 }}
-                        
-                        // Swipe Properties
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
                         dragElastic={0.2}
                         onDragEnd={handleDragEnd}
-                        onClick={() => {
-                          // If it was a drag, don't open lightbox. 
-                          // Simple click opens lightbox.
-                          openLightbox();
-                        }}
-                        
+                        onClick={openLightbox}
                         className="w-full h-full object-cover cursor-grab active:cursor-grabbing"
                       />
 
-                      {/* On-Page Navigation Arrows (Hidden on mobile, visible on hover desktop) */}
+                      {/* On-Page Navigation Arrows */}
                       {activeFilm.gallery && activeFilm.gallery.length > 1 && (
                         <>
                           <button 
@@ -461,11 +458,6 @@ const Films: React.FC = () => {
                         </>
                       )}
                     </div>
-                  )}
-                  {activeFilm.gallery && activeFilm.gallery.length > 0 && (
-                     <p className="text-xs text-center mt-2 opacity-40 uppercase tracking-wider">
-                       {isMobile ? "Swipe pour voir la galerie" : "Cliquez pour agrandir / Swipe pour naviguer"}
-                     </p>
                   )}
                 </div>
 
@@ -535,7 +527,7 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* --- LIGHTBOX MODAL (Only if user clicks to zoom) --- */}
+      {/* --- LIGHTBOX MODAL --- */}
       <AnimatePresence>
         {isLightboxOpen && activeFilm && activeFilm.gallery && (
           <motion.div
@@ -565,7 +557,6 @@ const Films: React.FC = () => {
                 onDragEnd={handleDragEnd}
                 className="max-w-[95%] max-h-[90vh] object-contain cursor-grab active:cursor-grabbing shadow-2xl"
               />
-              {/* Lightbox Arrows */}
                <button 
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-6 hidden md:block"
                   onClick={(e) => { e.stopPropagation(); prevImage(); }}
