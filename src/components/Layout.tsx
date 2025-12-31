@@ -8,17 +8,16 @@ const Layout: React.FC = () => {
   const { isMobile } = useCursor();
   const navigate = useNavigate();
 
-  // Reset scroll position and ensure proper layout when component mounts
+  // Reset scroll position on mount
   useEffect(() => {
     if (isMobile) {
-      // Force scroll to top and reset any scroll-related state
       window.scrollTo(0, 0);
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
     }
   }, [isMobile]);
 
-  // Add scroll listener for mobile navigation
+  // Mobile Swipe/Scroll Navigation Logic
   useEffect(() => {
     if (!isMobile) return;
 
@@ -29,31 +28,28 @@ const Layout: React.FC = () => {
       if (isNavigating) return;
 
       const scrollY = window.scrollY;
-      const threshold = 100; // Adjust this value to change sensitivity
+      const threshold = 100; 
 
-      // Clear any existing timeout
       clearTimeout(scrollTimeout);
 
-      // Set a timeout to prevent too frequent navigation attempts
       scrollTimeout = setTimeout(() => {
         if (scrollY > threshold && !isNavigating) {
           isNavigating = true;
           
-          // Smooth scroll animation before navigation
+          // Smooth scroll down effect
           window.scrollTo({
             top: window.innerHeight,
             behavior: 'smooth'
           });
 
-          // Navigate after animation completes
+          // Navigate after animation
           setTimeout(() => {
             navigate('/films');
-          }, 500); // Adjust timing to match scroll animation
+          }, 500); 
         }
-      }, 150); // Debounce scroll events
+      }, 100); // Slightly reduced debounce for responsiveness
     };
 
-    // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
@@ -64,21 +60,25 @@ const Layout: React.FC = () => {
 
   if (isMobile) {
     return (
-      <div className="relative w-full">
+      <div className="relative w-full text-white">
         <Navigation />
-        {/* Fixed positioning for mobile to prevent scroll issues */}
-        <div className="fixed inset-0 flex items-center justify-center z-10">
-          <Logo />
+        
+        {/* Fixed Center Logo */}
+        <div className="fixed inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div className="pointer-events-auto">
+            <Logo />
+          </div>
         </div>
-        {/* Add some height to enable scrolling */}
-        <div className="h-[200vh]" />
+        
+        {/* Scrollable Area */}
+        <div className="h-[150vh]" />
       </div>
     );
   }
 
-  // Desktop layout (unchanged)
+  // Desktop Layout
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full text-white">
       <Navigation />
       <div className="h-full flex items-center justify-center">
         <Logo />
