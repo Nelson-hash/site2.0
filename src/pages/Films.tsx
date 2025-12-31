@@ -127,7 +127,7 @@ const Films: React.FC = () => {
         "/images/films/gueule-dange2.jpg",
         "/images/films/gueule-dange3.jpg"
       ],
-      description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
+      description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir Le Portrait avec qui il semble partager un lien obscur et vital.",
       team: {
         main: [
           "Production : Horus Productions",
