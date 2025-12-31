@@ -11,31 +11,21 @@ const Logo: React.FC = () => {
     e.stopPropagation();
     setShowText(!showText);
     
-    // On mobile, briefly flash the hover effect on tap
     if (isMobile) {
       setHovered(true);
       setTimeout(() => setHovered(false), 300);
     }
   };
 
-  const handleMouseEnter = () => {
-    if (!isMobile) {
-      setHovered(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (!isMobile) {
-      setHovered(false);
-    }
-  };
+  const handleMouseEnter = () => !isMobile && setHovered(true);
+  const handleMouseLeave = () => !isMobile && setHovered(false);
   
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.5, delay: 0.3 }}
-      className="logo-container flex flex-col items-center cursor-pointer select-none"
+      className="logo-container flex flex-col items-center cursor-pointer select-none z-50 relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={toggleDisplay}
@@ -50,33 +40,43 @@ const Logo: React.FC = () => {
         {showText ? (
           <motion.h1 
             key="text"
-            className={`${isMobile ? 'text-8xl sm:text-9xl' : 'text-7xl md:text-8xl lg:text-9xl'} font-bold tracking-widest pointer-events-auto text-center`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: isMobile ? 1 : 1.1 }}
+            // UPDATED FONT STYLES HERE:
+            className={`${isMobile ? 'text-4xl sm:text-6xl' : 'text-5xl md:text-7xl lg:text-8xl'} font-bold tracking-[0.25em] uppercase text-white pointer-events-auto text-center`}
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            whileHover={{ scale: isMobile ? 1 : 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
           >
             HORUS
           </motion.h1>
         ) : (
           <motion.div
             key="svg"
-            className={`${isMobile ? 'w-96 h-96 sm:w-[30rem] sm:h-[30rem]' : 'w-80 h-80 md:w-96 md:h-96 lg:w-128 lg:h-128 xl:w-144 xl:h-144'} pointer-events-auto flex items-center justify-center`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            whileHover={{ scale: isMobile ? 1 : 1.1 }}
+            className={`${isMobile ? 'w-80 h-80 sm:w-[28rem] sm:h-[28rem]' : 'w-96 h-96 md:w-[30rem] md:h-[30rem] lg:w-[40rem] lg:h-[40rem]'} pointer-events-auto flex items-center justify-center`}
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            whileHover={{ scale: isMobile ? 1 : 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.4 }}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 8000 8000"
               className="w-full h-full pointer-events-none"
             >
-              <g transform="translate(0,8000) scale(0.1,-0.1)" fill="#ffffff" stroke="none">
+              {/* UPDATED DRAWING STYLE:
+                 Using 'stroke' instead of 'fill' creates an elegant outline 
+                 which makes the logo appear less thick/heavy.
+              */}
+              <g 
+                transform="translate(0,8000) scale(0.1,-0.1)" 
+                fill="none" 
+                stroke="#ffffff" 
+                strokeWidth="250" 
+              >
                 <path d="M43237 60830 c-469 -35 -918 -245 -1243 -582 -279 -289 -446 -633
                 -518 -1069 -63 -381 -81 -711 -80 -1474 0 -703 18 -1211 70 -2023 8 -134 13
                 -246 11 -248 -3 -3 -121 -51 -263 -108 -202 -81 -260 -108 -262 -123 -2 -14
