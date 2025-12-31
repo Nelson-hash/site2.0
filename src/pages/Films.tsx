@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion'; // Added PanInfo
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
@@ -9,7 +9,6 @@ interface Film {
   year: string;
   image: string;
   description: string;
-  // New property for the gallery slider
   gallery?: string[]; 
   team: {
     main: string[];
@@ -86,7 +85,6 @@ const Films: React.FC = () => {
       title: "NUIT BLANCHE", 
       year: "2025",
       image: "/images/films/nuit-blanche.jpg",
-      // Define the gallery explicitly here
       gallery: [
         "/images/films/nuit-blanche.jpg",
         "/images/films/nuit-blanche2.jpg",
@@ -257,7 +255,6 @@ const Films: React.FC = () => {
 
   // -- Lightbox Logic --
   const openLightbox = () => {
-    // Only open if we have gallery images
     if (activeFilm && activeFilm.gallery && activeFilm.gallery.length > 0) {
       setLightboxIndex(0);
       setIsLightboxOpen(true);
@@ -277,6 +274,22 @@ const Films: React.FC = () => {
   const prevLightboxImage = () => {
     if (activeFilm && activeFilm.gallery) {
       setLightboxIndex((prev) => (prev - 1 + activeFilm.gallery!.length) % activeFilm.gallery!.length);
+    }
+  };
+
+  // -- Swipe Logic for Framer Motion --
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
+  const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
+    const swipe = swipePower(offset.x, velocity.x);
+
+    if (swipe < -swipeConfidenceThreshold) {
+      nextLightboxImage();
+    } else if (swipe > swipeConfidenceThreshold) {
+      prevLightboxImage();
     }
   };
 
@@ -420,13 +433,17 @@ const Films: React.FC = () => {
                       </h4>
                       <div className="min-h-[200px] md:min-h-[300px]">
                         <div className="space-y-1 text-center md:text-left">
-                          {activeFilm.team.main.map((member, index) => (
-                            <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed" 
-                               style={{ color: activeFilm.theme.text }}>
-                              <span className="opacity-70">{member.split(' : ')[0]} :</span>{' '}
-                              <span style={{ color: activeFilm.theme.accent }}>{member.split(' : ')[1]}</span>
-                            </p>
-                          ))}
+                          {/* --- MAIN TEAM RENDER (Updated Styles) --- */}
+                          {activeFilm.team.main.map((member, index) => {
+                            const [role, name] = member.split(' : ');
+                            return (
+                              <p key={index} className="text-xs md:text-sm leading-relaxed" 
+                                style={{ color: activeFilm.theme.text }}>
+                                <span className="font-bold">{role} :</span>{' '}
+                                <span className="font-normal">{name}</span>
+                              </p>
+                            );
+                          })}
                           
                           {activeFilm.team.additional && (
                             <>
@@ -440,19 +457,15 @@ const Films: React.FC = () => {
                                 {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
                               </button>
                               
+                              {/* --- ADDITIONAL TEAM RENDER (Updated Styles) --- */}
                               {expandedTeam === activeFilm.title && (
                                 <div className="space-y-1 mt-3 pt-2 border-t border-opacity-20" style={{ borderColor: activeFilm.theme.text }}>
                                   {activeFilm.team.additional.map((member, index) => {
-                                    const role = member.split(' : ')[0];
-                                    const names = member.split(' : ')[1];
-                                    const nameColor = index % 2 === 0 
-                                      ? (activeFilm.theme.background === '#ffffff' ? '#DC143C' : '#FFB6C1')
-                                      : (activeFilm.theme.background === '#ffffff' ? '#4682B4' : '#87CEEB');
-                                    
+                                    const [role, name] = member.split(' : ');
                                     return (
-                                      <p key={index} className="text-xs md:text-sm opacity-90 font-light leading-relaxed">
-                                        <span className="opacity-70" style={{ color: activeFilm.theme.text }}>{role} :</span>{' '}
-                                        <span style={{ color: nameColor }}>{names}</span>
+                                      <p key={index} className="text-xs md:text-sm leading-relaxed" style={{ color: activeFilm.theme.text }}>
+                                        <span className="font-bold">{role} :</span>{' '}
+                                        <span className="font-normal">{name}</span>
                                       </p>
                                     );
                                   })}
@@ -492,9 +505,9 @@ const Films: React.FC = () => {
               </svg>
             </button>
 
-            {/* Left Arrow */}
+            {/* Left Arrow (Hide on mobile usually, but kept for clarity) */}
             <button 
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50"
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50 hidden md:block"
               onClick={(e) => { e.stopPropagation(); prevLightboxImage(); }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
@@ -502,31 +515,38 @@ const Films: React.FC = () => {
               </svg>
             </button>
 
-            {/* Main Image */}
+            {/* Main Image with Swipe Support */}
             <div 
               className="relative w-full h-full flex items-center justify-center p-8 md:p-12"
-              onClick={(e) => e.stopPropagation()} // Prevent clicking image from closing
+              onClick={(e) => e.stopPropagation()} 
             >
               <motion.img
                 key={lightboxIndex}
                 src={activeFilm.gallery[lightboxIndex]}
-                initial={{ opacity: 0, x: 20 }}
+                initial={{ opacity: 0, x: 0 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, x: 0 }}
                 transition={{ duration: 0.3 }}
+                
+                // Swipe Properties
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={handleDragEnd}
+                
                 alt={`${activeFilm.title} screenshot ${lightboxIndex + 1}`}
-                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm"
+                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
               />
               
               {/* Counter */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm font-light tracking-widest">
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm font-light tracking-widest pointer-events-none">
                 {lightboxIndex + 1} / {activeFilm.gallery.length}
               </div>
             </div>
 
             {/* Right Arrow */}
             <button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50 hidden md:block"
               onClick={(e) => { e.stopPropagation(); nextLightboxImage(); }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
