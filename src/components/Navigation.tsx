@@ -10,52 +10,55 @@ const Navigation: React.FC = () => {
   const isFilmsPage = location.pathname === '/films';
   const isAboutPage = location.pathname === '/about';
 
-  // HELPER: Defines the font style for the menu links.
-  // Currently set to 'font-bold' per your request.
-  // change 'font-bold' to 'font-light' if you want it to match the "Films" page headers exactly.
-  const linkStyle = "font-bold tracking-widest uppercase text-sm md:text-base relative group";
+  // HELPER: Font style - Bold, Uppercase, Bigger size
+  const linkStyle = "font-bold tracking-widest uppercase text-lg md:text-2xl relative group";
 
   return (
-    <nav className="fixed top-0 left-0 w-full p-4 md:p-8 z-40 flex justify-between items-start pointer-events-none text-white mix-blend-difference">
-      
-      {/* LEFT LINK: FILMS */}
-      <div className="pointer-events-auto">
-        <Link 
-          to="/films"
-          onMouseEnter={() => !isMobile && setHovered(true)}
-          onMouseLeave={() => !isMobile && setHovered(false)}
-          className={`${linkStyle} ${isFilmsPage ? 'opacity-100' : 'opacity-60 hover:opacity-100'} transition-opacity duration-300`}
-        >
-          Films
-          {/* Underline animation for active state */}
-          {isFilmsPage && (
-            <motion.div 
-              layoutId="underline"
-              className="absolute -bottom-1 left-0 w-full h-[1px] bg-white"
-            />
-          )}
-        </Link>
+    <>
+      {/* LINK 1: FILMS */}
+      <div className={`fixed z-40 text-white mix-blend-difference pointer-events-none
+        ${isMobile ? 'bottom-6 left-6' : 'top-8 left-8'}`}
+      >
+        <div className="pointer-events-auto">
+          <Link 
+            to="/films"
+            onMouseEnter={() => !isMobile && setHovered(true)}
+            onMouseLeave={() => !isMobile && setHovered(false)}
+            className={`${linkStyle} ${isFilmsPage ? 'opacity-100' : 'opacity-70 hover:opacity-100'} transition-opacity duration-300`}
+          >
+            Films
+            {/* Underline animation */}
+            {isFilmsPage && (
+              <motion.div 
+                layoutId="underline-films"
+                className="absolute -bottom-1 left-0 w-full h-[2px] bg-white"
+              />
+            )}
+          </Link>
+        </div>
       </div>
 
-      {/* RIGHT LINK: A PROPOS */}
-      <div className="pointer-events-auto">
-        <Link 
-          to="/about"
-          onMouseEnter={() => !isMobile && setHovered(true)}
-          onMouseLeave={() => !isMobile && setHovered(false)}
-          className={`${linkStyle} ${isAboutPage ? 'opacity-100' : 'opacity-60 hover:opacity-100'} transition-opacity duration-300`}
-        >
-          A propos
-           {/* Underline animation for active state */}
-           {isAboutPage && (
-            <motion.div 
-              layoutId="underline"
-              className="absolute -bottom-1 left-0 w-full h-[1px] bg-white"
-            />
-          )}
-        </Link>
+      {/* LINK 2: A PROPOS */}
+      <div className="fixed z-40 bottom-6 right-6 md:bottom-8 md:right-8 text-white mix-blend-difference pointer-events-none">
+        <div className="pointer-events-auto">
+          <Link 
+            to="/about"
+            onMouseEnter={() => !isMobile && setHovered(true)}
+            onMouseLeave={() => !isMobile && setHovered(false)}
+            className={`${linkStyle} ${isAboutPage ? 'opacity-100' : 'opacity-70 hover:opacity-100'} transition-opacity duration-300`}
+          >
+            A propos
+            {/* Underline animation */}
+            {isAboutPage && (
+              <motion.div 
+                layoutId="underline-about"
+                className="absolute -bottom-1 left-0 w-full h-[2px] bg-white"
+              />
+            )}
+          </Link>
+        </div>
       </div>
-    </nav>
+    </>
   );
 };
 
