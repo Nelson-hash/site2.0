@@ -9,7 +9,6 @@ interface TeamMember {
   lastName: string;
   role: string;
   email: string;
-  image: string;
 }
 
 const About = () => {
@@ -18,8 +17,6 @@ const About = () => {
   // Reset scroll position when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
   }, []);
   
   const teamMembers: TeamMember[] = [
@@ -28,21 +25,18 @@ const About = () => {
       lastName: "HUSSEIN",
       role: "",
       email: "gabriel@horusprod.com",
-      image: "/images/team/gabriel.jpg",
     },
     {
       firstName: "Matias",
       lastName: "THOMAS",
       role: "",
       email: "matias@horusprod.com",
-      image: "/images/team/matias.jpg",
     },
     {
       firstName: "Nelson",
       lastName: "REMY",
       role: "",
       email: "nelson@horusprod.com",
-      image: "/images/team/nelson.jpg",
     }
   ];
   
@@ -50,9 +44,7 @@ const About = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
   };
   
@@ -61,92 +53,76 @@ const About = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.5
-      }
-    }
-  };
-
-  // Handle touch events for mobile
-  const handleTouch = () => {
-    if (isMobile) {
-      setHovered(true);
-      setTimeout(() => setHovered(false), 300);
+      transition: { duration: 0.6, ease: "easeOut" }
     }
   };
 
   return (
-    <div className="about-page relative min-h-screen w-screen overflow-auto">
+    <div className="about-page relative min-h-screen w-screen overflow-hidden text-white">
       <VideoBackground />
       
-      {/* Fixed header with proper spacing - removed 3D logo */}
+      {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
         <HomeLink />
       </div>
       
-      {/* Main content with proper padding to avoid header overlap and allow scrolling */}
-      <div className="relative z-10 w-full pt-20 md:pt-16 px-4 md:px-6 pb-20 md:pb-12">
+      {/* Main Content - Centered Layout */}
+      <div className="relative z-10 w-full h-screen flex flex-col items-center justify-center px-6 md:px-12">
         <motion.div 
-          className="w-full mx-auto min-h-screen md:min-h-0"
+          className="w-full max-w-4xl text-center flex flex-col items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.h1 
-            className="text-4xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold mb-6 md:mb-8 lg:mb-10"
+          {/* TITLE: Matches Films page style (Light + Wide Tracking) */}
+          <motion.h2 
+            className="text-2xl md:text-4xl font-light tracking-wide mb-8 md:mb-12 border-b border-white/20 pb-4 inline-block"
             variants={itemVariants}
           >
             A PROPOS
-          </motion.h1>
+          </motion.h2>
           
+          {/* DESCRIPTION */}
           <motion.div 
-            className="text-base md:text-xl lg:text-xl xl:text-2xl 2xl:text-3xl leading-relaxed mb-8 md:mb-12 lg:mb-14 max-w-none lg:max-w-4xl xl:max-w-5xl"
+            className="text-sm md:text-lg leading-relaxed opacity-90 mb-16 md:mb-24 max-w-2xl font-light"
             variants={itemVariants}
           >
-            <p className="mb-6 lg:mb-8">
+            <p>
               Nous voulons offrir aux jeunes artistes talentueux les moyens nécessaires pour concrétiser leurs idées créatives. Nous croyons au potentiel de ceux qui nous entourent et nous engageons à leur fournir des conditions optimales pour explorer leurs visions.
             </p>
           </motion.div>
           
+          {/* TEAM MEMBERS: Clean Row Layout */}
           <motion.div 
-            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-16 mt-6 md:mt-8 lg:mt-10"
+            className="w-full flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24"
             variants={itemVariants}
           >
             {teamMembers.map((member, index) => (
               <motion.div 
                 key={index}
-                className="flex flex-col items-center text-center"
-                onMouseEnter={() => !isMobile && setHovered(true)}
-                onMouseLeave={() => !isMobile && setHovered(false)}
-                onTouchStart={handleTouch}
-                whileHover={{ y: isMobile ? 0 : -5 }}
-                whileTap={isMobile ? { scale: 0.95 } : {}}
+                className="flex flex-col items-center gap-2 group cursor-default"
+                whileHover={{ y: -5 }}
+                transition={{ duration: 0.2 }}
               >
-                <div className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 2xl:w-40 2xl:h-40 mb-3 md:mb-4 lg:mb-5 rounded-full overflow-hidden">
-                  <img 
-                    src={member.image} 
-                    alt={`${member.firstName} ${member.lastName}`}
-                    className="w-full h-full object-cover grayscale"
-                  />
-                </div>
-                <h3 className="text-sm md:text-lg lg:text-lg xl:text-xl 2xl:text-2xl font-normal mb-0">
-                  {member.firstName}
+                {/* Name Styling: Regular First, Bold Last */}
+                <h3 className="text-lg md:text-xl tracking-wide">
+                  <span className="font-light opacity-90">{member.firstName}</span>{' '}
+                  <span className="font-bold">{member.lastName}</span>
                 </h3>
-                <h4 className="text-sm md:text-lg lg:text-lg xl:text-xl 2xl:text-2xl font-bold mb-1 md:mb-2 lg:mb-2">
-                  {member.lastName}
-                </h4>
+                
+                {/* Email: Subtle with hover effect */}
                 <a 
                   href={`mailto:${member.email}`}
-                  className="text-xs md:text-sm lg:text-sm xl:text-base 2xl:text-lg opacity-60 hover:opacity-100 transition-opacity"
+                  className="text-xs md:text-sm opacity-50 hover:opacity-100 transition-opacity tracking-wider uppercase border-b border-transparent hover:border-white/50 pb-0.5"
                   onMouseEnter={() => !isMobile && setHovered(true)}
                   onMouseLeave={() => !isMobile && setHovered(false)}
-                  onTouchStart={handleTouch}
                 >
                   {member.email}
                 </a>
               </motion.div>
             ))}
           </motion.div>
+
         </motion.div>
       </div>
     </div>
