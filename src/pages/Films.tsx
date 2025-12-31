@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion'; // Added PanInfo
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
@@ -74,9 +74,9 @@ const Films: React.FC = () => {
   const [loadingStates, setLoadingStates] = useState<Map<string, boolean>>(new Map());
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   
-  // -- Lightbox State --
+  // -- Lightbox / Slider State --
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0); // Used for both on-page slider and lightbox
 
   const mountedRef = useRef(true);
   
@@ -178,12 +178,7 @@ const Films: React.FC = () => {
   // Reset scroll position
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-    
-    return () => {
-      mountedRef.current = false;
-    };
+    return () => { mountedRef.current = false; };
   }, []);
 
   // Preload images
@@ -193,27 +188,31 @@ const Films: React.FC = () => {
     ImageLoader.preloadImages(imageSources);
   }, []);
 
-  // Keyboard navigation for Lightbox
+  // Keyboard navigation
   useEffect(() => {
-    if (!isLightboxOpen || !activeFilm || !activeFilm.gallery) return;
+    if (!activeFilm) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeLightbox();
+        if (isLightboxOpen) closeLightbox();
+        else handleBackToList();
       } else if (e.key === 'ArrowRight') {
-        nextLightboxImage();
+        nextImage();
       } else if (e.key === 'ArrowLeft') {
-        prevLightboxImage();
+        prevImage();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, activeFilm, lightboxIndex]);
+  }, [isLightboxOpen, activeFilm, currentImageIndex]);
 
   const handleFilmClick = useCallback(async (film: Film) => {
     if (!mountedRef.current) return;
     setLoadingStates(prev => new Map(prev.set(film.image, true)));
+    
+    // Reset slider index when opening a film
+    setCurrentImageIndex(0);
 
     try {
       await ImageLoader.loadImage(film.image, 'high');
@@ -227,12 +226,16 @@ const Films: React.FC = () => {
         setLoadingStates(prev => new Map(prev.set(film.image, false)));
       }
     }
+    
+    // Scroll to top when entering detail view
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
-    if (isMobile) {
-      setHovered(true);
-      setTimeout(() => setHovered(false), 300);
-    }
-  }, [isMobile, setHovered]);
+  const handleBackToList = useCallback(() => {
+    setActiveFilm(null);
+    setExpandedTeam(null);
+    setClickedFilm(null);
+  }, []);
 
   const toggleTeamExpansion = useCallback((filmTitle: string) => {
     setExpandedTeam(prev => prev === filmTitle ? null : filmTitle);
@@ -240,23 +243,25 @@ const Films: React.FC = () => {
 
   const handleLinkClick = useCallback((film: Film) => {
     if (film.link) {
-      if (isMobile) {
-        if (clickedFilm === film.title) {
-          window.open(film.link, '_blank');
-          setClickedFilm(null);
-        } else {
-          setClickedFilm(film.title);
-        }
-      } else {
         window.open(film.link, '_blank');
-      }
     }
-  }, [isMobile, clickedFilm]);
+  }, []);
 
-  // -- Lightbox Logic --
+  // -- Image Navigation Logic (Shared by On-Page Slider and Lightbox) --
+  const nextImage = () => {
+    if (activeFilm && activeFilm.gallery) {
+      setCurrentImageIndex((prev) => (prev + 1) % activeFilm.gallery!.length);
+    }
+  };
+
+  const prevImage = () => {
+    if (activeFilm && activeFilm.gallery) {
+      setCurrentImageIndex((prev) => (prev - 1 + activeFilm.gallery!.length) % activeFilm.gallery!.length);
+    }
+  };
+
   const openLightbox = () => {
     if (activeFilm && activeFilm.gallery && activeFilm.gallery.length > 0) {
-      setLightboxIndex(0);
       setIsLightboxOpen(true);
     }
   };
@@ -265,19 +270,7 @@ const Films: React.FC = () => {
     setIsLightboxOpen(false);
   };
 
-  const nextLightboxImage = () => {
-    if (activeFilm && activeFilm.gallery) {
-      setLightboxIndex((prev) => (prev + 1) % activeFilm.gallery!.length);
-    }
-  };
-
-  const prevLightboxImage = () => {
-    if (activeFilm && activeFilm.gallery) {
-      setLightboxIndex((prev) => (prev - 1 + activeFilm.gallery!.length) % activeFilm.gallery!.length);
-    }
-  };
-
-  // -- Swipe Logic for Framer Motion --
+  // -- Swipe Logic --
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset: number, velocity: number) => {
     return Math.abs(offset) * velocity;
@@ -285,274 +278,310 @@ const Films: React.FC = () => {
 
   const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
     const swipe = swipePower(offset.x, velocity.x);
-
     if (swipe < -swipeConfidenceThreshold) {
-      nextLightboxImage();
+      nextImage();
     } else if (swipe > swipeConfidenceThreshold) {
-      prevLightboxImage();
+      prevImage();
     }
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  };
-  
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
   };
 
   const isImageLoading = activeFilm ? loadingStates.get(activeFilm.image) || false : false;
 
+  // Determine current image source to display
+  const currentImageSrc = activeFilm 
+    ? (activeFilm.gallery ? activeFilm.gallery[currentImageIndex] : activeFilm.image)
+    : "";
+
   return (
     <motion.div
-      className="min-h-screen w-screen flex flex-col items-center justify-center relative overflow-auto"
+      className="min-h-screen w-screen flex flex-col relative overflow-x-hidden"
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
         color: activeFilm ? activeFilm.theme.text : "#ffffff",
-        transition: { duration: 0.2, ease: "easeOut" }
+        transition: { duration: 0.5, ease: "easeInOut" }
       }}
     >
-      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
-        <HomeLink />
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start pointer-events-none">
+        <div className="pointer-events-auto">
+          <HomeLink />
+        </div>
+        
+        {/* Back Button (Only visible when activeFilm is present) */}
+        <AnimatePresence>
+          {activeFilm && (
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              onClick={handleBackToList}
+              className="pointer-events-auto text-sm md:text-base font-light tracking-widest uppercase hover:opacity-60 transition-opacity"
+              style={{ color: activeFilm.theme.text }}
+            >
+              Retour / Back
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
       
-      <div className="w-full max-w-7xl flex flex-col md:flex-row pt-20 md:pt-16 px-4 md:px-8 pb-8 md:items-center md:justify-center md:min-h-screen">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-          className="w-full md:w-2/5 space-y-8 md:space-y-16 mb-8 md:mb-0 md:flex md:flex-col md:justify-center"
-        >
-          <motion.section variants={itemVariants}>
-            <h2 className="text-2xl md:text-4xl font-light mb-6 md:mb-8 tracking-wide films-section-header">COURTS-METRAGES</h2>
-            <div className="space-y-4 md:space-y-6">
-              {upcomingFilms.map((film, index) => (
-                <motion.div
-                  key={index}
-                  className="cursor-pointer py-2"
-                  onMouseEnter={() => !isMobile && (setHovered(true), handleFilmClick(film))}
-                  onMouseLeave={() => !isMobile && setHovered(false)}
-                  onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
-                  whileHover={{ x: isMobile ? 0 : 20 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <h3 className="text-lg md:text-2xl font-light tracking-wide">
-                    {film.title} 
-                    <span className="ml-4 transition-colors duration-150 ease-out"
-                      style={{ color: activeFilm?.title === film.title ? activeFilm.theme.accent : "#aaaaaa" }}>
-                      {film.year}
-                    </span>
-                  </h3>
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
-          
-          <motion.section variants={itemVariants}>
-            <h2 className="text-2xl md:text-4xl font-light mb-6 md:mb-8 tracking-wide films-section-header">CLIPS</h2>
-            <div className="space-y-4 md:space-y-6">
-              {pastFilms.map((film, index) => (
-                <motion.div
-                  key={index}
-                  className="cursor-pointer py-2"
-                  onMouseEnter={() => !isMobile && (setHovered(true), handleFilmClick(film))}
-                  onMouseLeave={() => !isMobile && setHovered(false)}
-                  onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
-                  whileHover={{ x: isMobile ? 0 : 20 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <div className="flex flex-col">
-                    <h3 className="text-lg md:text-2xl font-light tracking-wide">
-                      {film.title} 
-                      <span className="ml-4 transition-colors duration-150 ease-out"
-                        style={{ color: activeFilm?.title === film.title ? activeFilm.theme.accent : "#aaaaaa" }}>
-                        {film.year}
-                      </span>
-                    </h3>
-                    {isMobile && film.link && clickedFilm === film.title && (
-                      <motion.span 
+      <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col justify-center pt-24 pb-12 px-4 md:px-8">
+        
+        {/* --- LIST VIEW (Films Menu) --- */}
+        <AnimatePresence mode="wait">
+          {!activeFilm && (
+            <motion.div
+              key="list-view"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.3 } }}
+              className="w-full flex flex-col md:flex-row md:items-start md:justify-center gap-16 md:gap-32"
+            >
+              <div className="w-full md:w-1/2 flex flex-col items-center md:items-end text-center md:text-right">
+                <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">COURTS-METRAGES</h2>
+                <div className="space-y-6">
+                  {upcomingFilms.map((film, index) => (
+                    <motion.div
+                      key={index}
+                      className="cursor-pointer group"
+                      onMouseEnter={() => !isMobile && setHovered(true)}
+                      onMouseLeave={() => !isMobile && setHovered(false)}
+                      onClick={() => handleFilmClick(film)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <h3 className="text-2xl md:text-4xl font-extralight tracking-widest group-hover:text-gray-400 transition-colors">
+                        {film.title}
+                      </h3>
+                      <span className="text-sm text-gray-500">{film.year}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
+                <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">CLIPS</h2>
+                <div className="space-y-6">
+                  {pastFilms.map((film, index) => (
+                    <motion.div
+                      key={index}
+                      className="cursor-pointer group"
+                      onMouseEnter={() => !isMobile && setHovered(true)}
+                      onMouseLeave={() => !isMobile && setHovered(false)}
+                      onClick={() => { handleFilmClick(film); handleLinkClick(film); }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <h3 className="text-2xl md:text-4xl font-extralight tracking-widest group-hover:text-gray-400 transition-colors">
+                        {film.title}
+                      </h3>
+                      <span className="text-sm text-gray-500">{film.year}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* --- DETAIL VIEW (Single Project) --- */}
+        <AnimatePresence mode="wait">
+          {activeFilm && (
+            <motion.div
+              key="detail-view"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 50 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="w-full h-full flex flex-col items-center"
+            >
+              {/* Title Header in Detail View */}
+              <div className="w-full text-center mb-8 md:mb-12">
+                 <h1 className="text-3xl md:text-6xl font-light tracking-widest uppercase mb-2">
+                   {activeFilm.title}
+                 </h1>
+                 <p className="text-sm md:text-lg opacity-60 tracking-wide">{activeFilm.year}</p>
+              </div>
+
+              <div className="w-full flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center max-w-6xl">
+                
+                {/* --- LEFT COLUMN: IMAGE / SLIDER --- */}
+                <div className="w-full lg:w-2/3 relative">
+                  {isImageLoading ? (
+                    <div className="aspect-video w-full bg-black/10 animate-pulse rounded-sm flex items-center justify-center">
+                       <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    <div className="relative w-full aspect-video overflow-hidden rounded-sm group select-none">
+                      {/* Image with Swipe */}
+                      <motion.img 
+                        key={currentImageIndex} // Key change triggers animation
+                        src={currentImageSrc}
+                        alt={activeFilm.title}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-sm opacity-60 mt-1"
-                      >
-                        Cliquez à nouveau pour ouvrir
-                      </motion.span>
+                        transition={{ duration: 0.3 }}
+                        
+                        // Swipe Properties
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={handleDragEnd}
+                        onClick={() => {
+                          // If it was a drag, don't open lightbox. 
+                          // Simple click opens lightbox.
+                          openLightbox();
+                        }}
+                        
+                        className="w-full h-full object-cover cursor-grab active:cursor-grabbing"
+                      />
+
+                      {/* On-Page Navigation Arrows (Hidden on mobile, visible on hover desktop) */}
+                      {activeFilm.gallery && activeFilm.gallery.length > 1 && (
+                        <>
+                          <button 
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
+                            onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                          >
+                             ←
+                          </button>
+                          <button 
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block"
+                            onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                          >
+                             →
+                          </button>
+                          {/* Dots Indicator */}
+                          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            {activeFilm.gallery.map((_, idx) => (
+                              <div 
+                                key={idx} 
+                                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/40'}`}
+                              />
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {activeFilm.gallery && activeFilm.gallery.length > 0 && (
+                     <p className="text-xs text-center mt-2 opacity-40 uppercase tracking-wider">
+                       {isMobile ? "Swipe pour voir la galerie" : "Cliquez pour agrandir / Swipe pour naviguer"}
+                     </p>
+                  )}
+                </div>
+
+                {/* --- RIGHT COLUMN: INFO --- */}
+                <div className="w-full lg:w-1/3 flex flex-col gap-8">
+                  
+                  {/* Description */}
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Synopsis</h3>
+                    <p className="text-sm md:text-base leading-relaxed opacity-90 text-justify">
+                      {activeFilm.description}
+                    </p>
+                    {activeFilm.link && (
+                      <div className="mt-4">
+                        <button 
+                          onClick={() => handleLinkClick(activeFilm)}
+                          className="text-sm border-b border-current pb-0.5 hover:opacity-50 transition-opacity"
+                        >
+                          Voir le projet ↗
+                        </button>
+                      </div>
                     )}
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
-        </motion.div>
 
-        <div className="w-full md:w-3/5 md:pl-16 min-h-[300px] md:min-h-[500px] relative">
-          {(activeFilm || isImageLoading) && (
-            <div className="absolute inset-0 flex flex-col items-center md:items-start justify-start md:justify-start p-4 pt-8 md:pt-4">
-              {isImageLoading ? (
-                <div className="flex flex-col items-center justify-center animate-fade-in">
-                  <div className="w-full max-w-md md:max-w-lg aspect-video bg-gradient-to-br from-gray-800/20 to-gray-900/20 rounded-lg mb-6 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin"></div>
-                  </div>
-                  <p className="text-sm opacity-60">Chargement de l'image...</p>
-                </div>
-              ) : activeFilm ? (
-                <div className="animate-fade-in w-full">
-                  <div className="flex flex-col md:flex-row md:gap-8">
-                    <div className="w-full md:w-3/5 flex-shrink-0 mb-6 md:mb-0">
-                      
-                      {/* --- CLICKABLE IMAGE --- */}
-                      <div 
-                        className={`w-full aspect-video overflow-hidden rounded-lg mb-4 ${activeFilm.gallery ? 'cursor-zoom-in' : ''}`}
-                        onClick={openLightbox}
-                      >
-                        <img 
-                          src={activeFilm.image}
-                          alt={activeFilm.title} 
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                          style={{ opacity: 1, objectFit: 'cover' }}
-                        />
-                      </div>
-                      {activeFilm.gallery && activeFilm.gallery.length > 0 && (
-                        <p className="text-xs text-center mb-2 opacity-50 italic">
-                          (Cliquez sur l'image pour voir la galerie)
-                        </p>
-                      )}
-                      
-                      <div className="w-full">
-                        <p className="text-sm md:text-lg leading-relaxed text-center md:text-justify opacity-90">
-                          {activeFilm.description}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="w-full md:w-2/5 flex flex-col justify-start">
-                      <h4 className="text-xs md:text-sm font-light tracking-wider opacity-70 mb-3 uppercase text-center md:text-left">
-                        Équipe
-                      </h4>
-                      <div className="min-h-[200px] md:min-h-[300px]">
-                        <div className="space-y-1 text-center md:text-left">
-                          {/* --- MAIN TEAM RENDER (Updated Styles) --- */}
-                          {activeFilm.team.main.map((member, index) => {
-                            const [role, name] = member.split(' : ');
-                            return (
-                              <p key={index} className="text-xs md:text-sm leading-relaxed" 
-                                style={{ color: activeFilm.theme.text }}>
-                                <span className="font-bold">{role} :</span>{' '}
-                                <span className="font-normal">{name}</span>
-                              </p>
-                            );
-                          })}
-                          
-                          {activeFilm.team.additional && (
-                            <>
-                              <button
-                                onClick={() => toggleTeamExpansion(activeFilm.title)}
-                                onMouseEnter={() => !isMobile && setHovered(true)}
-                                onMouseLeave={() => !isMobile && setHovered(false)}
-                                className="text-xs md:text-sm opacity-60 hover:opacity-100 transition-opacity mt-2 underline"
-                                style={{ color: activeFilm.theme.accent }}
-                              >
-                                {expandedTeam === activeFilm.title ? 'Lire moins' : 'Lire plus'}
-                              </button>
-                              
-                              {/* --- ADDITIONAL TEAM RENDER (Updated Styles) --- */}
-                              {expandedTeam === activeFilm.title && (
-                                <div className="space-y-1 mt-3 pt-2 border-t border-opacity-20" style={{ borderColor: activeFilm.theme.text }}>
-                                  {activeFilm.team.additional.map((member, index) => {
-                                    const [role, name] = member.split(' : ');
-                                    return (
-                                      <p key={index} className="text-xs md:text-sm leading-relaxed" style={{ color: activeFilm.theme.text }}>
-                                        <span className="font-bold">{role} :</span>{' '}
-                                        <span className="font-normal">{name}</span>
-                                      </p>
-                                    );
-                                  })}
+                  {/* Team */}
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Crédits</h3>
+                    <div className="space-y-1.5">
+                       {activeFilm.team.main.map((member, index) => {
+                          const [role, name] = member.split(' : ');
+                          return (
+                            <p key={index} className="text-sm leading-relaxed">
+                              <span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span>
+                            </p>
+                          );
+                       })}
+                       
+                       {activeFilm.team.additional && (
+                          <>
+                             <div className={`overflow-hidden transition-all duration-500 ease-in-out ${expandedTeam === activeFilm.title ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
+                                <div className="space-y-1.5 pt-2 border-t border-black/10 dark:border-white/10">
+                                   {activeFilm.team.additional.map((member, index) => {
+                                      const [role, name] = member.split(' : ');
+                                      return (
+                                        <p key={index} className="text-sm leading-relaxed">
+                                          <span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span>
+                                        </p>
+                                      );
+                                   })}
                                 </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
+                             </div>
+                             <button
+                               onClick={() => toggleTeamExpansion(activeFilm.title)}
+                               className="text-xs opacity-50 hover:opacity-100 mt-2 underline decoration-dotted underline-offset-4"
+                             >
+                               {expandedTeam === activeFilm.title ? '- Réduire les crédits' : '+ Tous les crédits'}
+                             </button>
+                          </>
+                       )}
                     </div>
                   </div>
                 </div>
-              ) : null}
-            </div>
+
+              </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
 
-      {/* --- LIGHTBOX MODAL --- */}
+      {/* --- LIGHTBOX MODAL (Only if user clicks to zoom) --- */}
       <AnimatePresence>
         {isLightboxOpen && activeFilm && activeFilm.gallery && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md"
             onClick={closeLightbox}
           >
-            {/* Close Button */}
-            <button 
-              className="absolute top-4 right-4 text-white/70 hover:text-white z-50 p-2"
-              onClick={closeLightbox}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+            <button className="absolute top-4 right-4 text-white/70 hover:text-white p-4 z-50">
+               ✕
             </button>
 
-            {/* Left Arrow (Hide on mobile usually, but kept for clarity) */}
-            <button 
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50 hidden md:block"
-              onClick={(e) => { e.stopPropagation(); prevLightboxImage(); }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-
-            {/* Main Image with Swipe Support */}
             <div 
-              className="relative w-full h-full flex items-center justify-center p-8 md:p-12"
+              className="relative w-full h-full flex items-center justify-center"
               onClick={(e) => e.stopPropagation()} 
             >
               <motion.img
-                key={lightboxIndex}
-                src={activeFilm.gallery[lightboxIndex]}
-                initial={{ opacity: 0, x: 0 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 0 }}
-                transition={{ duration: 0.3 }}
-                
-                // Swipe Properties
+                key={currentImageIndex}
+                src={activeFilm.gallery[currentImageIndex]}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.2 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={1}
                 onDragEnd={handleDragEnd}
-                
-                alt={`${activeFilm.title} screenshot ${lightboxIndex + 1}`}
-                className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
+                className="max-w-[95%] max-h-[90vh] object-contain cursor-grab active:cursor-grabbing shadow-2xl"
               />
-              
-              {/* Counter */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/60 text-sm font-light tracking-widest pointer-events-none">
-                {lightboxIndex + 1} / {activeFilm.gallery.length}
-              </div>
+              {/* Lightbox Arrows */}
+               <button 
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-6 hidden md:block"
+                  onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                >
+                  ❮
+                </button>
+                <button 
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-6 hidden md:block"
+                  onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                >
+                  ❯
+                </button>
             </div>
-
-            {/* Right Arrow */}
-            <button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-4 z-50 hidden md:block"
-              onClick={(e) => { e.stopPropagation(); nextLightboxImage(); }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+             <div className="absolute bottom-6 text-white/40 text-sm tracking-widest pointer-events-none">
+                {currentImageIndex + 1} / {activeFilm.gallery.length}
+              </div>
           </motion.div>
         )}
       </AnimatePresence>
