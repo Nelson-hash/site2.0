@@ -15,22 +15,26 @@ const HomeLink: React.FC = () => {
   };
 
   return (
-    <Link to="/">
-      <motion.h1
-        className="text-2xl font-bold tracking-widest"
-        // Remove scale animation to prevent movement
+    <Link to="/" className="inline-block">
+      <motion.div
+        // UPDATED STYLES: Matches the Navigation links exactly (Bold, Uppercase, Smaller size)
+        className="font-bold tracking-widest uppercase text-sm md:text-base"
+        
+        // Remove scale animation to prevent layout shifts, use opacity instead
         whileTap={{ scale: 0.95 }}
         onMouseEnter={() => !isMobile && setHovered(true)}
         onMouseLeave={() => !isMobile && setHovered(false)}
         onTouchStart={handleTouch}
-        // Add subtle opacity change instead of scale
+        
+        initial={{ opacity: 0.6 }}
         whileHover={{ 
-          opacity: isMobile ? 1 : 0.8,
+          opacity: 1,
           transition: { duration: 0.2 }
         }}
+        style={{ color: 'inherit' }} // Inherits color from the parent (Films page handles text color)
       >
         HORUS
-      </motion.h1>
+      </motion.div>
     </Link>
   );
 };
