@@ -144,7 +144,7 @@ const Films: React.FC = () => {
           "Image : Marta Romanzo, assistée par Jonas Bellaiche",
           "Machinerie : Kellyan",
           "Décoration : Félix Spinosi, assisté par Jawel Coudert",
-          "Costumes : Violette"
+          "Costumes : Violette Novat"
         ]
       },
       theme: {
