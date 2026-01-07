@@ -4,15 +4,11 @@ import Layout from './components/Layout';
 import CustomCursor from './components/CustomCursor';
 import { CursorProvider } from './context/CursorContext';
 import { useIsMobile } from './hooks/useIsMobile';
-
-// Import normally for these critical components 
 import VideoBackground from './components/VideoBackground';
 
-// Lazy load pages
 const Films = lazy(() => import('./pages/Films'));
 const About = lazy(() => import('./pages/About'));
 
-// Loading component
 const PageLoader = () => (
   <div className="h-screen w-full flex items-center justify-center bg-black">
     <div className="animate-pulse text-2xl font-bold tracking-widest uppercase text-white">
@@ -28,8 +24,9 @@ function App() {
     {
       path: "/",
       element: (
-        // FIX: Changed w-screen to w-full, removed overflow-hidden logic
-        <div className="relative min-h-screen w-full overflow-x-hidden">
+        // --- FIX 1: Restore h-screen and overflow-hidden for Home only ---
+        // This ensures the Logo inside <Layout /> remains vertically centered.
+        <div className={`relative w-full ${isMobile ? 'min-h-screen overflow-auto' : 'h-screen overflow-hidden'}`}>
           <VideoBackground />
           <Layout />
         </div>
@@ -38,7 +35,6 @@ function App() {
     {
       path: "/films",
       element: (
-        // Films handles its own layout, so we don't wrap it in a blocking div
         <Suspense fallback={<PageLoader />}>
           <Films />
         </Suspense>
@@ -47,7 +43,7 @@ function App() {
     {
       path: "/about",
       element: (
-        // FIX: Changed w-screen to w-full, removed overflow-hidden logic
+        // About page should scroll if text is long
         <div className="relative min-h-screen w-full overflow-x-hidden">
           <VideoBackground />
           <Suspense fallback={<PageLoader />}>
