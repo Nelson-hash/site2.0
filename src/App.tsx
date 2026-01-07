@@ -14,15 +14,13 @@ const About = lazy(() => import('./pages/About'));
 
 // Loading component
 const PageLoader = () => (
-  <div className="h-screen w-screen flex items-center justify-center bg-black">
-    {/* Updated font style here: Bold, Wide Tracking, Uppercase */}
+  <div className="h-screen w-full flex items-center justify-center bg-black">
     <div className="animate-pulse text-2xl font-bold tracking-widest uppercase text-white">
       HORUS
     </div>
   </div>
 );
 
-// We need to create the router inside the component to use the mobile hook
 function App() {
   const isMobile = useIsMobile();
 
@@ -30,7 +28,8 @@ function App() {
     {
       path: "/",
       element: (
-        <div className={`relative ${isMobile ? 'min-h-screen' : 'h-screen'} w-screen ${isMobile ? 'overflow-auto' : 'overflow-hidden'}`}>
+        // FIX: Changed w-screen to w-full, removed overflow-hidden logic
+        <div className="relative min-h-screen w-full overflow-x-hidden">
           <VideoBackground />
           <Layout />
         </div>
@@ -39,6 +38,7 @@ function App() {
     {
       path: "/films",
       element: (
+        // Films handles its own layout, so we don't wrap it in a blocking div
         <Suspense fallback={<PageLoader />}>
           <Films />
         </Suspense>
@@ -47,7 +47,8 @@ function App() {
     {
       path: "/about",
       element: (
-        <div className={`relative ${isMobile ? 'min-h-screen' : 'h-screen'} w-screen ${isMobile ? 'overflow-auto' : 'overflow-hidden'}`}>
+        // FIX: Changed w-screen to w-full, removed overflow-hidden logic
+        <div className="relative min-h-screen w-full overflow-x-hidden">
           <VideoBackground />
           <Suspense fallback={<PageLoader />}>
             <About />
