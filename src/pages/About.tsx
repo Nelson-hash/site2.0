@@ -88,7 +88,7 @@ const About = () => {
             variants={itemVariants}
           >
             <p>
-              Nous voulons offrir aux jeunes artistes talentueux les moyens nécessaires pour concrétiser leurs idées créatives. Nous croyons au potentiel de ceux qui nous entourent et nous engageons à leur fournir des conditions optimales pour explorer leurs visions.
+              Nous voulons offrir à des jeunes artistes talentueux les moyens nécessaires pour concrétiser leurs idées. Nous nous engageons à vous fournir les conditions optimales pour exprimer votre vision.
             </p>
           </motion.div>
           
