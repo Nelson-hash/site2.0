@@ -75,7 +75,7 @@ const Films: React.FC = () => {
       description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
       team: {
         main: ["Production : Horus Productions", "Réalisation & Scenario : Jonas Aragones"],
-        additional: ["Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter", "Réalisation : Jonas Aragones, assisté par Gil Ingrand", "Maquillage : Candice Thro, Elsa Desurvire", "Continuité : Gena", "Régie : Nathan Deymié, assisté par Nils Archi", "Image : Marta Romanzo, assistée par Jonas Bellaiche", "Machinerie : Kellyan", "Décoration : Félix Spinosi, assisté par Jawel Coudert", "Costumes : Violette Novat"]
+        additional: ["Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter", "Réalisation : Jonas Aragones, assisté par Gil Ingrand", "Maquillage : Candice Thro (SFX) et Elsa Desurvire, assistées par Alicia Yang et Jeanne Piffaut", "Continuité : Gena Lespert", "Régie : Nathan Deymié, assisté par Nils Archi et Pierre Moskvine", "Image : Marta Romanzo, assistée par Jonas Bellaiche et Jules Marchon", "Machinerie : Kelyan Vignaux", "Décoration : Félix Spinosi, assisté par Jawel Coudert", "Costumes : Violette Novat, assistée par Lilou Thibaut", "Son : Louis Slabiak, mixage de Joseph-Etienne Cercueus", "Graphisme : Siloé Ralite", "Photographe de plateau : Suzanne Gautier]
       },
       theme: { background: "#f0efed", text: "#1a1a1a", accent: "#757575" }
     }
