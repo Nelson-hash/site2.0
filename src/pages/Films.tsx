@@ -3,7 +3,7 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
-// --- INTERFACES (Kept same as before) ---
+// --- INTERFACES ---
 interface Film {
   title: string;
   year: string;
@@ -13,13 +13,15 @@ interface Film {
   team: { main: string[]; additional?: string[]; };
   link?: string;
   theme: { background: string; text: string; accent: string; };
+  isComingSoon?: boolean; // New property to handle non-clickable state
 }
 
-// --- UTILITIES (Kept same as before) ---
+// --- UTILITIES ---
 class ImageLoader {
   private static cache = new Map<string, HTMLImageElement>();
   private static loadingPromises = new Map<string, Promise<HTMLImageElement>>();
   static async loadImage(src: string, priority: 'high' | 'low' = 'low'): Promise<HTMLImageElement> {
+    if (!src) return Promise.reject("No source provided"); // Safety check for empty strings
     if (this.cache.has(src)) return this.cache.get(src)!;
     if (this.loadingPromises.has(src)) return this.loadingPromises.get(src)!;
     const loadingPromise = new Promise<HTMLImageElement>((resolve, reject) => {
@@ -37,7 +39,7 @@ class ImageLoader {
   }
   static preloadImages(sources: string[]) {
     sources.forEach((src, index) => {
-      this.loadImage(src, index === 0 ? 'high' : 'low').catch(() => console.warn(`Failed to preload: ${src}`));
+      if (src) this.loadImage(src, index === 0 ? 'high' : 'low').catch(() => console.warn(`Failed to preload: ${src}`));
     });
   }
 }
@@ -53,7 +55,7 @@ const Films: React.FC = () => {
 
   const mountedRef = useRef(true);
   
-  // DATA (Your data remains here...)
+  // --- DATA ---
   const upcomingFilms: Film[] = [
     { 
       title: "NUIT BLANCHE", 
@@ -78,6 +80,15 @@ const Films: React.FC = () => {
         additional: ["Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter", "Réalisation : Jonas Aragones, assisté par Gil Ingrand", "Maquillage : Candice Thro (SFX) et Elsa Desurvire, assistées par Alicia Yang et Jeanne Piffaut", "Continuité : Gena Lespert", "Régie : Nathan Deymié, assisté par Nils Archi et Pierre Moskvine", "Image : Marta Romanzo, assistée par Jonas Bellaiche et Jules Marchon", "Lumière : Kelyan Vignaux", "Décoration : Félix Spinosi, assisté par Jawel Coudert", "Costumes : Violette Novat, assistée par Lilou Thibaut", "Son : Louis Slabiak, mixage de Joseph-Etienne Cercueus", "Graphisme : Siloé Ralite", "Photographe de plateau : Suzanne Gautier"]
       },
       theme: { background: "#f0efed", text: "#1a1a1a", accent: "#757575" }
+    },
+    {
+      title: "PRESQUE JAUNE",
+      year: "2026",
+      image: "", // No image needed since it's not clickable
+      description: "En cours de post-production.",
+      team: { main: ["Production : Horus Productions"] },
+      theme: { background: "#000000", text: "#ffffff", accent: "#ffffff" },
+      isComingSoon: true // The key flag for your request
     }
   ];
   
@@ -93,9 +104,8 @@ const Films: React.FC = () => {
     }
   ];
 
-  // --- FORCE SCROLL ON MOUNT ---
+  // --- HOOKS ---
   useEffect(() => {
-    // Crucial: This ensures we can scroll on this page even if coming from the "locked" home page
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
     window.scrollTo(0, 0);
@@ -104,10 +114,9 @@ const Films: React.FC = () => {
 
   useEffect(() => {
     const allFilms = [...upcomingFilms, ...pastFilms];
-    ImageLoader.preloadImages(allFilms.map(f => f.image));
+    ImageLoader.preloadImages(allFilms.map(f => f.image).filter(img => img !== ""));
   }, []);
 
-  // Keyboard
   useEffect(() => {
     if (!activeFilm) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -121,8 +130,9 @@ const Films: React.FC = () => {
 
   useEffect(() => { window.scrollTo(0, 0); }, [activeFilm]);
 
+  // --- HANDLERS ---
   const handleFilmClick = useCallback(async (film: Film) => {
-    if (!mountedRef.current) return;
+    if (!mountedRef.current || film.isComingSoon) return;
     setLoadingStates(prev => new Map(prev.set(film.image, true)));
     setCurrentImageIndex(0);
     try {
@@ -164,7 +174,6 @@ const Films: React.FC = () => {
 
   return (
     <motion.div
-      // Use min-h-screen to allow growth. w-full prevents horizontal scroll.
       className="min-h-screen w-full flex flex-col relative overflow-x-hidden"
       animate={{
         backgroundColor: activeFilm ? activeFilm.theme.background : "#000000",
@@ -189,13 +198,7 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* --- MAIN CONTENT CONTAINER ---
-         1. min-h-screen: Ensures it fills the screen at minimum.
-         2. justify-center: Vertically centers the "List View".
-         3. BUT justify-start: Uses start for "Detail View" so it can scroll down naturally.
-      */}
       <div className={`w-full max-w-7xl mx-auto flex-grow flex flex-col pt-24 pb-12 px-4 md:px-8 min-h-screen ${activeFilm ? 'justify-start' : 'justify-center'}`}>
-        
         <AnimatePresence mode="wait">
           {!activeFilm ? (
             /* --- LIST VIEW --- */
@@ -207,17 +210,30 @@ const Films: React.FC = () => {
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-end text-center md:text-right">
                 <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">COURTS-METRAGES</h2>
                 <div className="space-y-6">
-                  {upcomingFilms.map((film, index) => (
-                    <motion.div key={index} className="cursor-pointer group"
-                      onMouseEnter={() => !isMobile && setHovered(true)} onMouseLeave={() => !isMobile && setHovered(false)}
-                      onClick={() => handleFilmClick(film)}
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <h3 className="text-2xl md:text-4xl font-extralight tracking-widest group-hover:text-gray-400 transition-colors">{film.title}</h3>
-                      <span className="text-sm text-gray-500">{film.year}</span>
-                    </motion.div>
-                  ))}
+                  {upcomingFilms.map((film, index) => {
+                    const isClickable = !film.isComingSoon;
+                    return (
+                      <motion.div 
+                        key={index} 
+                        className={`${isClickable ? 'cursor-pointer group' : 'cursor-default opacity-40'}`}
+                        onMouseEnter={() => isClickable && !isMobile && setHovered(true)} 
+                        onMouseLeave={() => isClickable && !isMobile && setHovered(false)}
+                        onClick={() => isClickable && handleFilmClick(film)}
+                        whileHover={isClickable ? { scale: 1.05 } : {}} 
+                        whileTap={isClickable ? { scale: 0.95 } : {}}
+                      >
+                        <h3 className={`text-2xl md:text-4xl font-extralight tracking-widest transition-colors ${isClickable ? 'group-hover:text-gray-400' : ''}`}>
+                          {film.title}
+                        </h3>
+                        <span className="text-sm text-gray-500">
+                          {film.isComingSoon ? "Post-Production" : film.year}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
+
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
                 <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">CLIPS</h2>
                 <div className="space-y-6">
@@ -239,7 +255,6 @@ const Films: React.FC = () => {
               key="detail-view"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              // --- FIX 2: Removed h-full. Added padding-bottom (pb-20) to ensure space for scrolling ---
               className="w-full flex flex-col items-center pb-20"
             >
               <div className="w-full text-center mb-8 md:mb-12">
@@ -263,7 +278,6 @@ const Films: React.FC = () => {
                         onClick={openLightbox}
                         className="w-full h-full object-cover cursor-grab active:cursor-grabbing touch-pan-y"
                       />
-                      {/* Arrows & Dots (hidden code for brevity, same as before) */}
                       {activeFilm.gallery && activeFilm.gallery.length > 1 && (
                         <>
                            <button className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/20 hover:bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" onClick={(e) => {e.stopPropagation(); prevImage();}}>←</button>
@@ -296,7 +310,7 @@ const Films: React.FC = () => {
                           return (<p key={index} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
                        })}
                        {activeFilm.team.additional && (
-                          <>
+                         <>
                              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${expandedTeam === activeFilm.title ? 'max-h-[800px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
                                 <div className="space-y-1.5 pt-2 border-t border-black/10 dark:border-white/10">
                                    {activeFilm.team.additional.map((member, index) => {
@@ -308,7 +322,7 @@ const Films: React.FC = () => {
                              <button onClick={() => toggleTeamExpansion(activeFilm.title)} className="text-xs opacity-50 hover:opacity-100 mt-2 underline decoration-dotted underline-offset-4">
                                {expandedTeam === activeFilm.title ? '- Réduire les crédits' : '+ Tous les crédits'}
                              </button>
-                          </>
+                         </>
                        )}
                     </div>
                   </div>
@@ -319,7 +333,7 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Lightbox (Same as before) */}
+      {/* Lightbox */}
       <AnimatePresence>
         {isLightboxOpen && activeFilm && activeFilm.gallery && (
           <motion.div
