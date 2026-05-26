@@ -1,12 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
 import Logo from './Logo';
 import { useCursor } from '../context/CursorContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Layout: React.FC = () => {
   const { isMobile } = useCursor();
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Reset scroll position on mount
   useEffect(() => {
@@ -47,7 +49,7 @@ const Layout: React.FC = () => {
             navigate('/films');
           }, 500); 
         }
-      }, 100); // Slightly reduced debounce for responsiveness
+      }, 100);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -61,13 +63,17 @@ const Layout: React.FC = () => {
   if (isMobile) {
     return (
       <div className="relative w-full text-white">
-        <Navigation />
+        <Navigation onMenuToggle={setIsMenuOpen} />
         
         {/* Fixed Center Logo */}
         <div className="fixed inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="pointer-events-auto">
+          <motion.div 
+            className="pointer-events-auto"
+            animate={{ opacity: isMenuOpen ? 0 : 1 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
             <Logo />
-          </div>
+          </motion.div>
         </div>
         
         {/* Scrollable Area */}
@@ -79,8 +85,9 @@ const Layout: React.FC = () => {
   // Desktop Layout
   return (
     <div className="relative h-full w-full text-white">
-      <Navigation />
+      <Navigation onMenuToggle={setIsMenuOpen} />
       <div className="h-full flex items-center justify-center">
+        {/* Optional: Add animation here too if you ever want desktop to fade */}
         <Logo />
       </div>
     </div>
