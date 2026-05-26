@@ -74,9 +74,9 @@ const About = () => {
           initial="hidden"
           animate="visible"
         >
-          {/* TITLE: Matches Films page style (Light + Wide Tracking) */}
+          {/* TITLE: Sized up */}
           <motion.h2 
-            className="text-2xl md:text-4xl font-light tracking-wide mb-8 md:mb-12 border-b border-white/20 pb-4 inline-block"
+            className="text-5xl md:text-7xl font-light tracking-wide mb-8 md:mb-12 border-b border-white/20 pb-4 inline-block"
             variants={itemVariants}
           >
             A PROPOS
