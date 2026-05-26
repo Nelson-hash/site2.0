@@ -25,7 +25,8 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuToggle }) => {
       { title: "PRESQUE JAUNE", status: "En post-production", isComingSoon: true }
     ],
     clips: [
-      { title: "QISHUI PAPITEDDYBEAR\nFEAT PENSE", status: "2024", isComingSoon: false }
+      { title: "QISHUI PAPITEDDYBEAR\nFEAT PENSE", status: "2024", isComingSoon: false },
+      { title: "CONVICTION ELIAS LCS", status: "2026", isComingSoon: false }
     ]
   };
 
