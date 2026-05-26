@@ -3,7 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCursor } from '../context/CursorContext';
 
-const Navigation: React.FC = () => {
+interface NavigationProps {
+  onMenuToggle?: (isOpen: boolean) => void;
+}
+
+const Navigation: React.FC<NavigationProps> = ({ onMenuToggle }) => {
   const { setHovered, isMobile } = useCursor();
   const location = useLocation();
   const navigate = useNavigate();
@@ -14,7 +18,6 @@ const Navigation: React.FC = () => {
 
   const linkStyle = "font-bold tracking-widest uppercase text-4xl md:text-5xl relative group";
 
-  // Added isComingSoon flag and the \n line break for the clip
   const projects = {
     courts: [
       { title: "NUIT BLANCHE", status: "2025", isComingSoon: false },
@@ -26,19 +29,24 @@ const Navigation: React.FC = () => {
     ]
   };
 
-  // Pass the target title through React Router's state
+  const handleMenuClick = () => {
+    const newState = !isFilmsMenuOpen;
+    setIsFilmsMenuOpen(newState);
+    if (onMenuToggle) onMenuToggle(newState);
+  };
+
   const handleProjectClick = (title: string) => {
     setIsFilmsMenuOpen(false);
+    if (onMenuToggle) onMenuToggle(false);
     navigate('/films', { state: { targetFilm: title } });
   };
 
   return (
     <>
-      {/* LINK 1: FILMS */}
       <div className="fixed z-40 top-6 right-6 md:top-8 md:right-8 text-white mix-blend-difference pointer-events-none flex flex-col items-end">
         <div className="pointer-events-auto flex flex-col items-end">
           <button 
-            onClick={() => setIsFilmsMenuOpen(!isFilmsMenuOpen)}
+            onClick={handleMenuClick}
             onMouseEnter={() => !isMobile && setHovered(true)}
             onMouseLeave={() => !isMobile && setHovered(false)}
             className={`${linkStyle} ${isFilmsPage ? 'opacity-100' : 'opacity-70 hover:opacity-100'} transition-opacity duration-300 outline-none`}
@@ -52,7 +60,6 @@ const Navigation: React.FC = () => {
             )}
           </button>
 
-          {/* Vertical Menu */}
           <AnimatePresence>
             {isFilmsMenuOpen && (
               <motion.div
@@ -81,7 +88,6 @@ const Navigation: React.FC = () => {
                           onMouseLeave={() => !isMobile && !proj.isComingSoon && setHovered(false)}
                           className={`flex flex-col items-end text-right outline-none ${proj.isComingSoon ? 'cursor-default' : 'cursor-pointer'}`}
                         >
-                          {/* Font size reduced, whitespace-pre-line added */}
                           <span className={`text-lg md:text-2xl font-extralight tracking-wide whitespace-pre-line leading-tight ${proj.isComingSoon ? 'opacity-40' : 'opacity-80 group-hover:opacity-100 transition-opacity'}`}>
                             {proj.title}
                           </span>
@@ -110,7 +116,6 @@ const Navigation: React.FC = () => {
                           onMouseLeave={() => !isMobile && !proj.isComingSoon && setHovered(false)}
                           className={`flex flex-col items-end text-right outline-none ${proj.isComingSoon ? 'cursor-default' : 'cursor-pointer'}`}
                         >
-                          {/* Font size reduced, whitespace-pre-line added */}
                           <span className={`text-lg md:text-2xl font-extralight tracking-wide whitespace-pre-line leading-tight ${proj.isComingSoon ? 'opacity-40' : 'opacity-80 group-hover:opacity-100 transition-opacity'}`}>
                             {proj.title}
                           </span>
@@ -128,7 +133,7 @@ const Navigation: React.FC = () => {
         </div>
       </div>
 
-      {/* LINK 2: A PROPOS */}
+      {/* A PROPOS */}
       <div className="fixed z-40 bottom-6 right-6 md:bottom-8 md:right-8 text-white mix-blend-difference pointer-events-none">
         <div className="pointer-events-auto">
           <Link 
