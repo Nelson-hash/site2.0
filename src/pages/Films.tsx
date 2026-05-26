@@ -105,6 +105,15 @@ const Films: React.FC = () => {
       team: { main: ["Production : Horus Productions", "Son : Papiteddybear & Pense", "Image : Gabhus"] },
       link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
       theme: { background: "#d8e1e8", text: "#1a2a38", accent: "#7096b8" }
+    },
+    { 
+      title: "CONVICTION ELIAS LCS", 
+      year: "2026",
+      image: "/images/films/conviction.jpg",
+      description: "CONVICTION, clip du son, déjà disponible sur toutes les plateformes",
+      team: { main: ["Production : Horus Productions", "Son : Elias LCS", "Image : Gabhus, Matias, Marta & Leila"] },
+      link: "https://www.youtube.com/watch?v=xTUR0E_gmVU",
+      theme: { background: "#121212", text: "#ffffff", accent: "#555555" }
     }
   ];
 
@@ -232,7 +241,6 @@ const Films: React.FC = () => {
             className="w-full flex flex-col items-center pb-20"
           >
             <div className="w-full text-center mb-8 md:mb-12">
-               {/* whitespace-pre-line maps \n accurately for titles that use it */}
                <h1 className="text-3xl md:text-6xl font-light tracking-widest uppercase mb-2 whitespace-pre-line">{activeFilm.title}</h1>
                <p className="text-sm md:text-lg opacity-60 tracking-wide">{activeFilm.year}</p>
             </div>
