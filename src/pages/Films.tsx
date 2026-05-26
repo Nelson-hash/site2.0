@@ -13,7 +13,7 @@ interface Film {
   team: { main: string[]; additional?: string[]; };
   link?: string;
   theme: { background: string; text: string; accent: string; };
-  isComingSoon?: boolean; // New property to handle non-clickable state
+  isComingSoon?: boolean;
 }
 
 // --- UTILITIES ---
@@ -21,7 +21,7 @@ class ImageLoader {
   private static cache = new Map<string, HTMLImageElement>();
   private static loadingPromises = new Map<string, Promise<HTMLImageElement>>();
   static async loadImage(src: string, priority: 'high' | 'low' = 'low'): Promise<HTMLImageElement> {
-    if (!src) return Promise.reject("No source provided"); // Safety check for empty strings
+    if (!src) return Promise.reject("No source provided"); 
     if (this.cache.has(src)) return this.cache.get(src)!;
     if (this.loadingPromises.has(src)) return this.loadingPromises.get(src)!;
     const loadingPromise = new Promise<HTMLImageElement>((resolve, reject) => {
@@ -84,11 +84,11 @@ const Films: React.FC = () => {
     {
       title: "PRESQUE JAUNE",
       year: "2026",
-      image: "", // No image needed since it's not clickable
+      image: "", 
       description: "En cours de post-production.",
       team: { main: ["Production : Horus Productions"] },
       theme: { background: "#000000", text: "#ffffff", accent: "#ffffff" },
-      isComingSoon: true // The key flag for your request
+      isComingSoon: true 
     }
   ];
   
@@ -208,7 +208,7 @@ const Films: React.FC = () => {
               className="w-full flex flex-col md:flex-row md:items-start md:justify-center gap-16 md:gap-32"
             >
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-end text-center md:text-right">
-                <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">COURTS-METRAGES</h2>
+                <h2 className="text-4xl md:text-6xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">COURTS-METRAGES</h2>
                 <div className="space-y-6">
                   {upcomingFilms.map((film, index) => {
                     const isClickable = !film.isComingSoon;
@@ -235,7 +235,7 @@ const Films: React.FC = () => {
               </div>
 
               <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-                <h2 className="text-xl md:text-3xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">CLIPS</h2>
+                <h2 className="text-4xl md:text-6xl font-light mb-8 tracking-wide border-b border-white/20 pb-2">CLIPS</h2>
                 <div className="space-y-6">
                   {pastFilms.map((film, index) => (
                     <motion.div key={index} className="cursor-pointer group"
