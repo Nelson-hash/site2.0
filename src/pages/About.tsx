@@ -58,16 +58,20 @@ const About = () => {
   };
 
   return (
-    <div className="about-page relative min-h-screen w-screen overflow-hidden text-white">
+    // FIX 1 & 2: Changed w-screen to w-full, overflow-hidden to overflow-x-hidden
+    <div className="about-page relative min-h-screen w-full overflow-x-hidden text-white">
       <VideoBackground />
       
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start">
-        <HomeLink />
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start pointer-events-none">
+        <div className="pointer-events-auto">
+          <HomeLink />
+        </div>
       </div>
       
       {/* Main Content - Centered Layout */}
-      <div className="relative z-10 w-full h-screen flex flex-col items-center justify-center px-6 md:px-12">
+      {/* FIX 3 & 4: Changed h-screen to min-h-screen, added py-32 to protect from header overlap */}
+      <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center px-6 md:px-12 py-32">
         <motion.div 
           className="w-full max-w-4xl text-center flex flex-col items-center"
           variants={containerVariants}
