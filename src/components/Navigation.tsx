@@ -15,9 +15,16 @@ const Navigation: React.FC = () => {
   // HELPER: Font style - Bold, Uppercase, 2x Bigger size
   const linkStyle = "font-bold tracking-widest uppercase text-4xl md:text-5xl relative group";
 
+  // Data structure updated to include the status/date
   const projects = {
-    courts: ["NUIT BLANCHE", "GUEULE D'ANGE", "PRESQUE JAUNE"],
-    clips: ["QISHUI PAPITEDDYBEAR FEAT PENSE"]
+    courts: [
+      { title: "NUIT BLANCHE", status: "2025" },
+      { title: "GUEULE D'ANGE", status: "2025" },
+      { title: "PRESQUE JAUNE", status: "En post-production" }
+    ],
+    clips: [
+      { title: "QISHUI PAPITEDDYBEAR FEAT PENSE", status: "2024" }
+    ]
   };
 
   const handleProjectClick = () => {
@@ -53,24 +60,37 @@ const Navigation: React.FC = () => {
                 initial={{ opacity: 0, y: -15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-                className="mt-6 flex flex-col items-end text-right space-y-6"
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="mt-8 relative flex flex-col items-end w-full"
               >
+                {/* Continuous Chronological Line */}
+                <div className="absolute right-[5px] top-6 bottom-1 w-[2px] bg-white/20 rounded-t-full" />
+                {/* Arrowhead at the bottom of the line */}
+                <div className="absolute right-[2px] -bottom-1 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-white/30" />
+
                 {/* Section 1: Courts-Métrages */}
-                <div>
-                  <h3 className="text-sm md:text-base font-bold opacity-50 tracking-widest uppercase mb-2 border-b border-white/30 pb-1">
+                <div className="mb-12 w-full flex flex-col items-end">
+                  <h3 className="text-xs md:text-sm font-bold opacity-40 tracking-widest uppercase mb-8 pr-8">
                     Courts-Métrages
                   </h3>
-                  <ul className="space-y-1">
+                  <ul className="space-y-8 w-full flex flex-col items-end">
                     {projects.courts.map((proj, idx) => (
-                      <li key={idx}>
+                      <li key={idx} className="relative pr-8 group flex flex-col items-end">
+                        {/* Dot on the timeline */}
+                        <div className="absolute right-0 top-3 w-3 h-3 rounded-full bg-white/30 group-hover:bg-white group-hover:scale-125 transition-all duration-300 z-10" />
+                        
                         <button 
                           onClick={handleProjectClick}
                           onMouseEnter={() => !isMobile && setHovered(true)}
                           onMouseLeave={() => !isMobile && setHovered(false)}
-                          className="text-xl md:text-2xl font-light tracking-wide opacity-70 hover:opacity-100 transition-opacity"
+                          className="flex flex-col items-end text-right outline-none"
                         >
-                          {proj}
+                          <span className="text-xl md:text-3xl font-extralight tracking-wide opacity-80 group-hover:opacity-100 transition-opacity">
+                            {proj.title}
+                          </span>
+                          <span className="text-[10px] md:text-xs font-bold opacity-40 mt-1 tracking-widest uppercase group-hover:opacity-70 transition-opacity">
+                            {proj.status}
+                          </span>
                         </button>
                       </li>
                     ))}
@@ -78,20 +98,28 @@ const Navigation: React.FC = () => {
                 </div>
 
                 {/* Section 2: Clips */}
-                <div>
-                  <h3 className="text-sm md:text-base font-bold opacity-50 tracking-widest uppercase mb-2 border-b border-white/30 pb-1">
+                <div className="w-full flex flex-col items-end">
+                  <h3 className="text-xs md:text-sm font-bold opacity-40 tracking-widest uppercase mb-8 pr-8">
                     Clips
                   </h3>
-                  <ul className="space-y-1">
+                  <ul className="space-y-8 w-full flex flex-col items-end">
                     {projects.clips.map((proj, idx) => (
-                      <li key={idx}>
+                      <li key={idx} className="relative pr-8 group flex flex-col items-end">
+                        {/* Dot on the timeline */}
+                        <div className="absolute right-0 top-3 w-3 h-3 rounded-full bg-white/30 group-hover:bg-white group-hover:scale-125 transition-all duration-300 z-10" />
+                        
                         <button 
                           onClick={handleProjectClick}
                           onMouseEnter={() => !isMobile && setHovered(true)}
                           onMouseLeave={() => !isMobile && setHovered(false)}
-                          className="text-xl md:text-2xl font-light tracking-wide opacity-70 hover:opacity-100 transition-opacity"
+                          className="flex flex-col items-end text-right outline-none"
                         >
-                          {proj}
+                          <span className="text-xl md:text-3xl font-extralight tracking-wide opacity-80 group-hover:opacity-100 transition-opacity">
+                            {proj.title}
+                          </span>
+                          <span className="text-[10px] md:text-xs font-bold opacity-40 mt-1 tracking-widest uppercase group-hover:opacity-70 transition-opacity">
+                            {proj.status}
+                          </span>
                         </button>
                       </li>
                     ))}
