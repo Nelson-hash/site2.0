@@ -24,8 +24,6 @@ function App() {
     {
       path: "/",
       element: (
-        // --- FIX 1: Restore h-screen and overflow-hidden for Home only ---
-        // This ensures the Logo inside <Layout /> remains vertically centered.
         <div className={`relative w-full ${isMobile ? 'min-h-screen overflow-auto' : 'h-screen overflow-hidden'}`}>
           <VideoBackground />
           <Layout />
@@ -43,7 +41,6 @@ function App() {
     {
       path: "/about",
       element: (
-        // About page should scroll if text is long
         <div className="relative min-h-screen w-full overflow-x-hidden">
           <VideoBackground />
           <Suspense fallback={<PageLoader />}>
@@ -57,6 +54,12 @@ function App() {
   return (
     <CursorProvider>
       <RouterProvider router={router} />
+      
+      {/* Filigrane discret ajouté ici */}
+      <div className="fixed bottom-6 left-6 z-50 text-white/30 text-xs tracking-widest font-light mix-blend-difference transition-opacity duration-500 hover:text-white/100 cursor-default pointer-events-none md:pointer-events-auto">
+        © 2026 Nelson
+      </div>
+
       <CustomCursor />
     </CursorProvider>
   );
