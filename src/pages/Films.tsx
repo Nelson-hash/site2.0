@@ -48,59 +48,27 @@ class ImageLoader {
 // --- DATA ---
 const upcomingFilms: Film[] = [
   { 
-    title: "NUIT BLANCHE", 
-    year: "2025",
-    image: "/images/films/nuit-blanche.jpg",
-    gallery: ["/images/films/nuit-blanche.jpg", "/images/films/nuit-blanche2.jpg", "/images/films/nuit-blanche3.jpg", "/images/films/nuit-blanche4.jpg"],
+    title: "NUIT BLANCHE", year: "2025", image: "/images/films/nuit-blanche.jpg", gallery: ["/images/films/nuit-blanche.jpg", "/images/films/nuit-blanche2.jpg", "/images/films/nuit-blanche3.jpg", "/images/films/nuit-blanche4.jpg"],
     description: "Julien et Marie vont passer le week-end à la campagne, dans la maison de famille de Marie, où les attendent ses trois frères et sœurs. Tandis que les bouteilles défilent et que la soirée bat son plein, un drame se produit.",
     team: {
       main: ["Production : Horus Productions", "Coproduction : Studio Méricourt & Ulysse Arnal"],
       additional: ["Cast : Tess Lepreux-Alles, Philippe Bertrand, Elise De Gaudemaris, Alban Pellet, Stanislas Bizeu, Christelle Ribeiro", "Continuité : Carla De Almeida Pinto", "Lumière : Axel Peylet", "Image : Léo Lacan, assisté par Thibault Lienhardt", "Machinerie : Aristote Pham-Ba", "Maquillage : Marie Haegeman", "Musique : Pierre Bernier", "Post-production : Jonathan Le Borgne, Tristan Villeboux, Maxime Bardou", "Réalisation : Augustin Arnal, assisté par Justin Féral", "Régie : Jonah Webb, Alex Jourdan, Piotr", "Scénario : Augustin Arnal", "Son : Ancelin Audebert, Joffrey Duquenne, Mattias Thomas"]
-    },
-    theme: { background: "#ffffff", text: "#000000", accent: "#555555" }
+    }, theme: { background: "#ffffff", text: "#000000", accent: "#555555" }
   },
   { 
-    title: "GUEULE D'ANGE", 
-    year: "2025",
-    image: "/images/films/gueule-dange.jpg",
-    gallery: ["/images/films/gueule-dange.jpg", "/images/films/gueule-dange2.jpg", "/images/films/gueule-dange3.jpg"],
+    title: "GUEULE D'ANGE", year: "2025", image: "/images/films/gueule-dange.jpg", gallery: ["/images/films/gueule-dange.jpg", "/images/films/gueule-dange2.jpg", "/images/films/gueule-dange3.jpg"],
     description: "Lors d'un dîner mondain, Dorian perd un bout de sa lèvre. Il s'éclipse pour aller voir -Le Portrait- avec qui il semble partager un lien obscur et vital.",
     team: {
       main: ["Production : Horus Productions", "Réalisation & Scenario : Jonas Aragones"],
       additional: ["Cast : Adrien Aucouturier, Joel Grimaud, Capucine Denis, Melvil Termini, Eliott Manning, Naoufel Bas, Robin Calmels, Paula Carpenter", "Réalisation : Jonas Aragones, assisté par Gil Ingrand", "Maquillage : Candice Thro (SFX) et Elsa Desurvire, assistées par Alicia Yang et Jeanne Piffaut", "Continuité : Gena Lespert", "Régie : Nathan Deymié, assisté par Nils Archi et Pierre Moskvine", "Image : Marta Romanzo, assistée par Jonas Bellaiche et Jules Marchon", "Lumière : Kelyan Vignaux", "Décoration : Félix Spinosi, assisté par Jawel Coudert", "Costumes : Violette Novat, assistée par Lilou Thibaut", "Son : Louis Slabiak, mixage de Joseph-Etienne Cercueus", "Graphisme : Siloé Ralite", "Photographe de plateau : Suzanne Gautier"]
-    },
-    theme: { background: "#f0efed", text: "#1a1a1a", accent: "#757575" }
+    }, theme: { background: "#f0efed", text: "#1a1a1a", accent: "#757575" }
   },
-  {
-    title: "PRESQUE JAUNE",
-    year: "2026",
-    image: "", 
-    description: "En cours de post-production.",
-    team: { main: ["Production : Horus Productions"] },
-    theme: { background: "#000000", text: "#ffffff", accent: "#ffffff" },
-    isComingSoon: true 
-  }
+  { title: "PRESQUE JAUNE", year: "2026", image: "", description: "En cours de post-production.", team: { main: ["Production : Horus Productions"] }, theme: { background: "#000000", text: "#ffffff", accent: "#ffffff" }, isComingSoon: true }
 ];
 
 const pastFilms: Film[] = [
-  { 
-    title: "QISHUI PAPITEDDYBEAR\nFEAT PENSE", 
-    year: "2024",
-    image: "/images/films/qishui.jpg",
-    description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬",
-    team: { main: ["Production : Horus Productions", "Son : Papiteddybear & Pense", "Image : Gabhus"] },
-    link: "https://www.youtube.com/watch?v=J_wA4imVTlg",
-    theme: { background: "#d8e1e8", text: "#1a2a38", accent: "#7096b8" }
-  },
-  { 
-    title: "CONVICTION ELIAS LCS", 
-    year: "2026",
-    image: "/images/films/conviction.jpg",
-    description: "CONVICTION, clip du son, déjà disponible sur toutes les plateformes",
-    team: { main: ["Production : Horus Productions", "Son : Elias LCS", "Image : Gabhus, Matias, Marta & Leila"] },
-    link: "https://www.youtube.com/watch?v=xTUR0E_gmVU",
-    theme: { background: "#121212", text: "#ffffff", accent: "#555555" }
-  }
+  { title: "QISHUI PAPITEDDYBEAR\nFEAT PENSE", year: "2024", image: "/images/films/qishui.jpg", description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬", team: { main: ["Production : Horus Productions", "Son : Papiteddybear & Pense", "Image : Gabhus"] }, link: "https://www.youtube.com/watch?v=J_wA4imVTlg", theme: { background: "#d8e1e8", text: "#1a2a38", accent: "#7096b8" } },
+  { title: "CONVICTION ELIAS LCS", year: "2026", image: "/images/films/conviction.jpg", description: "CONVICTION, clip du son, déjà disponible sur toutes les plateformes", team: { main: ["Production : Horus Productions", "Son : Elias LCS", "Image : Gabhus, Matias, Marta & Leila"] }, link: "https://www.youtube.com/watch?v=xTUR0E_gmVU", theme: { background: "#121212", text: "#ffffff", accent: "#555555" } }
 ];
 
 // --- MAIN COMPONENT ---
@@ -109,7 +77,6 @@ const Films: React.FC = () => {
   const navigate = useNavigate();
   const { setHovered, isMobile } = useCursor();
   
-  // MODIF 4: Trier les films disponibles par ordre chronologique décroissant (plus récent au plus ancien)
   const navigableFilms = useMemo(() => {
     return [...upcomingFilms, ...pastFilms]
       .filter(f => !f.isComingSoon)
@@ -121,19 +88,18 @@ const Films: React.FC = () => {
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
+  const [isExiting, setIsExiting] = useState(false); // État de sortie
   
   const touchStartY = useRef(0);
   const isTransitioningRef = useRef(false);
 
   const activeFilm = navigableFilms[currentIndex];
 
-  // --- INITIALIZATION ---
   useEffect(() => {
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
     window.scrollTo(0, 0);
     
-    // Déterminer le film de départ selon le state de la landing
     const targetTitle = location.state?.targetFilm;
     if (targetTitle) {
       const idx = navigableFilms.findIndex(f => f.title === targetTitle);
@@ -143,7 +109,6 @@ const Films: React.FC = () => {
     ImageLoader.preloadImages(navigableFilms.map(f => f.image).filter(img => img !== ""));
   }, [location.state, navigableFilms]);
 
-  // --- IMAGE LOADING EFFECT ---
   useEffect(() => {
     if (!activeFilm) return;
     setCurrentImageIndex(0);
@@ -153,7 +118,6 @@ const Films: React.FC = () => {
       .catch(() => setIsImageLoading(false));
   }, [currentIndex, activeFilm]);
 
-  // --- SCROLL NAVIGATION LOGIC (Modif 4) ---
   const goToFilm = useCallback((directionOrIndex: 'next' | 'prev' | number) => {
     if (isTransitioningRef.current || isLightboxOpen) return;
     
@@ -163,7 +127,6 @@ const Films: React.FC = () => {
       else if (directionOrIndex === 'prev') nextIndex = prev - 1;
       else nextIndex = directionOrIndex as number;
 
-      // Stop aux limites (pas de boucle infinie)
       if (nextIndex < 0) nextIndex = 0;
       if (nextIndex >= navigableFilms.length) nextIndex = navigableFilms.length - 1;
 
@@ -171,27 +134,22 @@ const Films: React.FC = () => {
         isTransitioningRef.current = true;
         setExpandedTeam(null);
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Cooldown pour éviter le scroll hyper-rapide
         setTimeout(() => { isTransitioningRef.current = false; }, 1200); 
       }
       return nextIndex;
     });
   }, [isLightboxOpen, navigableFilms.length]);
 
-  // Écoute de la molette pour PC
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (isLightboxOpen || isTransitioningRef.current) return;
-      // Scroll uniquement si l'intensité est suffisante
       if (e.deltaY > 50) goToFilm('next');
       else if (e.deltaY < -50) goToFilm('prev');
     };
-    
     window.addEventListener('wheel', handleWheel, { passive: true });
     return () => window.removeEventListener('wheel', handleWheel);
   }, [goToFilm, isLightboxOpen]);
 
-  // Écoute du tactile pour Mobile (Swipe up / down)
   const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (isLightboxOpen || isTransitioningRef.current) return;
@@ -201,10 +159,15 @@ const Films: React.FC = () => {
     else if (delta < -80) goToFilm('prev');
   };
 
-  // --- KEYBOARD & ACTIONS ---
+  const handleBackToHome = useCallback(() => {
+    if (isLightboxOpen) { closeLightbox(); return; }
+    setIsExiting(true);
+    setTimeout(() => navigate('/'), 600); // Navigation retardée pour laisser l'animation se faire
+  }, [isLightboxOpen, navigate]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { isLightboxOpen ? closeLightbox() : navigate('/'); }
+      if (e.key === 'Escape') handleBackToHome();
       else if (e.key === 'ArrowRight') nextImage();
       else if (e.key === 'ArrowLeft') prevImage();
       else if (e.key === 'ArrowDown') goToFilm('next');
@@ -212,16 +175,14 @@ const Films: React.FC = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isLightboxOpen, activeFilm, currentImageIndex, goToFilm, navigate]);
+  }, [handleBackToHome, activeFilm, currentImageIndex, goToFilm]);
 
   const toggleTeamExpansion = (filmTitle: string) => setExpandedTeam(prev => prev === filmTitle ? null : filmTitle);
   const handleLinkClick = (film: Film) => film.link && window.open(film.link, '_blank');
-  
   const nextImage = () => { if (activeFilm?.gallery) setCurrentImageIndex(p => (p + 1) % activeFilm.gallery!.length); };
   const prevImage = () => { if (activeFilm?.gallery) setCurrentImageIndex(p => (p - 1 + activeFilm.gallery!.length) % activeFilm.gallery!.length); };
   const openLightbox = () => { if (activeFilm?.gallery?.length) setIsLightboxOpen(true); };
   const closeLightbox = () => setIsLightboxOpen(false);
-
   const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
     if (offset.x * velocity.x < -10000) nextImage();
     else if (offset.x * velocity.x > 10000) prevImage();
@@ -235,23 +196,20 @@ const Films: React.FC = () => {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       className="min-h-screen w-full flex flex-col relative overflow-x-hidden"
-      // MODIF 3: Opacité initiale à 0 pour fondre par-dessus l'accueil
       initial={{ opacity: 0, backgroundColor: 'transparent' }}
       animate={{
-        backgroundColor: activeFilm.theme.background,
+        backgroundColor: isExiting ? 'transparent' : activeFilm.theme.background, // Retour transparent au clic
         color: activeFilm.theme.text,
-        opacity: 1,
-        transition: { duration: 0.8, ease: "easeOut" }
+        opacity: isExiting ? 0 : 1, // Fondu au clic
+        transition: { duration: 0.6, ease: "easeOut" }
       }}
-      exit={{ opacity: 0, transition: { duration: 0.5 } }}
     >
-      {/* Top Bar */}
       <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start pointer-events-none">
         <div className="pointer-events-auto"><HomeLink /></div>
         <AnimatePresence>
           <motion.button
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-            onClick={() => navigate('/')}
+            onClick={handleBackToHome}
             className="pointer-events-auto text-sm md:text-base font-light tracking-widest uppercase hover:opacity-60 transition-opacity"
             style={{ color: activeFilm.theme.text }}
           >
@@ -260,7 +218,7 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* --- MODIF 4 : FRISE CHRONOLOGIQUE VERTICALE --- */}
+      {/* --- FRISE CHRONOLOGIQUE AVEC TITRES --- */}
       <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-none md:pointer-events-auto">
         {navigableFilms.map((film, idx) => {
           const isActive = idx === currentIndex;
@@ -270,32 +228,18 @@ const Films: React.FC = () => {
               onClick={() => goToFilm(idx)}
               className="flex items-center justify-end gap-3 cursor-pointer group pointer-events-auto"
             >
-              <AnimatePresence mode="wait">
-                {isActive ? (
-                  <motion.span
-                    key="title"
-                    initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
-                    className="text-xs md:text-sm font-bold tracking-widest uppercase whitespace-nowrap"
-                    style={{ color: activeFilm.theme.text }}
-                  >
-                    {film.title}
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="year"
-                    initial={{ opacity: 0 }} animate={{ opacity: 0.4 }} whileHover={{ opacity: 0.8 }}
-                    className="text-[10px] md:text-xs font-light tracking-widest whitespace-nowrap hidden md:block transition-opacity"
-                    style={{ color: activeFilm.theme.text }}
-                  >
-                    {film.year}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-              <motion.div
+              <motion.span
                 animate={{ 
-                  height: isActive ? 32 : 6, 
-                  opacity: isActive ? 1 : 0.3 
+                  opacity: isActive ? 1 : 0.4, 
+                  scale: isActive ? 1.1 : 1 
                 }}
+                className="text-[10px] md:text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all duration-300 origin-right"
+                style={{ color: activeFilm.theme.text }}
+              >
+                {film.title}
+              </motion.span>
+              <motion.div
+                animate={{ height: isActive ? 32 : 6, opacity: isActive ? 1 : 0.3 }}
                 className="w-1.5 md:w-2 rounded-full bg-current transition-all duration-500 origin-center"
                 style={{ color: activeFilm.theme.text }}
               />
@@ -307,7 +251,7 @@ const Films: React.FC = () => {
       <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col pt-24 pb-12 px-4 md:px-8 min-h-screen justify-start">
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeFilm.title} // MODIF 3: Changement de clé pour crossfade entre les projets
+            key={activeFilm.title}
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="w-full flex flex-col items-center pb-20"
@@ -318,7 +262,6 @@ const Films: React.FC = () => {
             </div>
 
             <div className="w-full flex flex-col lg:flex-row gap-8 lg:gap-16 items-start justify-center max-w-6xl pl-0 lg:pr-16">
-              {/* LEFT (Image) */}
               <div className="w-full lg:w-2/3 relative">
                 {isImageLoading ? (
                   <div className="aspect-video w-full bg-black/10 animate-pulse rounded-sm flex items-center justify-center">
@@ -348,7 +291,6 @@ const Films: React.FC = () => {
                 )}
               </div>
 
-              {/* RIGHT (Info) */}
               <div className="w-full lg:w-1/3 flex flex-col gap-8">
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Synopsis</h3>
@@ -387,7 +329,6 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {isLightboxOpen && activeFilm && activeFilm.gallery && (
           <motion.div
