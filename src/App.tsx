@@ -9,8 +9,9 @@ import VideoBackground from './components/VideoBackground';
 const Films = lazy(() => import('./pages/Films'));
 const About = lazy(() => import('./pages/About'));
 
+// MODIF 3: Suppression du bg-black pour éviter l'écran noir pendant le chargement
 const PageLoader = () => (
-  <div className="h-screen w-full flex items-center justify-center bg-black">
+  <div className="h-screen w-full flex items-center justify-center bg-transparent backdrop-blur-sm fixed inset-0 z-50">
     <div className="animate-pulse text-2xl font-bold tracking-widest uppercase text-white">
       HORUS
     </div>
@@ -55,7 +56,6 @@ function App() {
     <CursorProvider>
       <RouterProvider router={router} />
       
-      {/* Filigrane discret ajouté ici */}
       <div className="fixed bottom-6 left-6 z-50 text-white/30 text-xs tracking-widest font-light mix-blend-difference transition-opacity duration-500 hover:text-white/100 cursor-default pointer-events-none md:pointer-events-auto">
         © 2026 Nelson
       </div>
