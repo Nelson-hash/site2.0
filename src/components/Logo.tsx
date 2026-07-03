@@ -25,9 +25,8 @@ const Logo: React.FC = () => {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1.5, delay: 0.3 }}
-      className="logo-container flex flex-col items-center cursor-pointer select-none z-50 relative"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      // J'ai enlevé les événements onMouse ici, pour ne pas cibler la grosse boîte globale
+      className="logo-container flex flex-col items-center justify-center cursor-pointer select-none z-50 relative"
       onClick={toggleDisplay}
       onTouchEnd={toggleDisplay}
       style={{ 
@@ -40,7 +39,6 @@ const Logo: React.FC = () => {
         {showText ? (
           <motion.h1 
             key="text"
-            // UPDATED FONT STYLES HERE:
             className={`${isMobile ? 'text-4xl sm:text-6xl' : 'text-5xl md:text-7xl lg:text-8xl'} font-bold tracking-[0.25em] uppercase text-white pointer-events-auto text-center`}
             initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -48,29 +46,36 @@ const Logo: React.FC = () => {
             whileHover={{ scale: isMobile ? 1 : 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.4 }}
+            // On remet les événements ICI sur le texte
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             HORUS
           </motion.h1>
         ) : (
           <motion.div
             key="svg"
-            className={`${isMobile ? 'w-80 h-80 sm:w-[28rem] sm:h-[28rem]' : 'w-96 h-96 md:w-[30rem] md:h-[30rem] lg:w-[40rem] lg:h-[40rem]'} pointer-events-auto flex items-center justify-center`}
+            // J'ai réduit considérablement la taille de la "boîte" du SVG. 
+            // Le SVG est en 'overflow-visible' donc il débordera visuellement, mais la hitbox (la zone cliquable/hover) sera plus petite et centrée.
+            className={`${isMobile ? 'w-48 h-24 sm:w-64 sm:h-32' : 'w-64 h-32 md:w-80 md:h-40 lg:w-96 lg:h-48'} pointer-events-auto flex items-center justify-center`}
             initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
             whileHover={{ scale: isMobile ? 1 : 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.4 }}
+            // On remet les événements ICI sur la boîte réduite du SVG
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 8000 8000"
-              className="w-full h-full pointer-events-none"
+              // J'ai ajusté le viewBox pour rogner une grande partie de l'espace vide autour du dessin.
+              // Les valeurs sont (x, y, width, height). Le dessin commence à peu près en X=4000 Y=0
+              viewBox="3800 0 4200 8000" 
+              className="w-full h-full pointer-events-none drop-shadow-lg"
+              style={{ overflow: 'visible' }}
             >
-              {/* UPDATED DRAWING STYLE:
-                 Using 'stroke' instead of 'fill' creates an elegant outline 
-                 which makes the logo appear less thick/heavy.
-              */}
               <g 
                 transform="translate(0,8000) scale(0.1,-0.1)" 
                 fill="none" 
