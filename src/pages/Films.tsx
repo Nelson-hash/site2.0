@@ -88,7 +88,7 @@ const Films: React.FC = () => {
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
-  const [isExiting, setIsExiting] = useState(false); // État de sortie
+  const [isExiting, setIsExiting] = useState(false);
   
   const touchStartY = useRef(0);
   const isTransitioningRef = useRef(false);
@@ -162,7 +162,7 @@ const Films: React.FC = () => {
   const handleBackToHome = useCallback(() => {
     if (isLightboxOpen) { closeLightbox(); return; }
     setIsExiting(true);
-    setTimeout(() => navigate('/'), 600); // Navigation retardée pour laisser l'animation se faire
+    setTimeout(() => navigate('/'), 600);
   }, [isLightboxOpen, navigate]);
 
   useEffect(() => {
@@ -198,9 +198,9 @@ const Films: React.FC = () => {
       className="min-h-screen w-full flex flex-col relative overflow-x-hidden"
       initial={{ opacity: 0, backgroundColor: 'transparent' }}
       animate={{
-        backgroundColor: isExiting ? 'transparent' : activeFilm.theme.background, // Retour transparent au clic
+        backgroundColor: isExiting ? 'transparent' : activeFilm.theme.background,
         color: activeFilm.theme.text,
-        opacity: isExiting ? 0 : 1, // Fondu au clic
+        opacity: isExiting ? 0 : 1,
         transition: { duration: 0.6, ease: "easeOut" }
       }}
     >
@@ -218,7 +218,7 @@ const Films: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* --- FRISE CHRONOLOGIQUE AVEC TITRES --- */}
+      {/* --- FRISE CHRONOLOGIQUE SANS HESITATION --- */}
       <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-none md:pointer-events-auto">
         {navigableFilms.map((film, idx) => {
           const isActive = idx === currentIndex;
@@ -233,14 +233,19 @@ const Films: React.FC = () => {
                   opacity: isActive ? 1 : 0.4, 
                   scale: isActive ? 1.1 : 1 
                 }}
-                className="text-[10px] md:text-xs font-bold tracking-widest uppercase whitespace-nowrap transition-all duration-300 origin-right"
+                transition={{ duration: 0.3, ease: "easeInOut" }} // Framer gère seul la transition
+                className="text-[10px] md:text-xs font-bold tracking-widest uppercase whitespace-nowrap origin-right" // Retrait de "transition-all"
                 style={{ color: activeFilm.theme.text }}
               >
                 {film.title}
               </motion.span>
               <motion.div
-                animate={{ height: isActive ? 32 : 6, opacity: isActive ? 1 : 0.3 }}
-                className="w-1.5 md:w-2 rounded-full bg-current transition-all duration-500 origin-center"
+                animate={{ 
+                  height: isActive ? 32 : 6, 
+                  opacity: isActive ? 1 : 0.3 
+                }}
+                transition={{ duration: 0.3, ease: "easeInOut" }} // Framer gère seul la transition
+                className="w-1.5 md:w-2 rounded-full bg-current origin-center" // Retrait de "transition-all"
                 style={{ color: activeFilm.theme.text }}
               />
             </div>
