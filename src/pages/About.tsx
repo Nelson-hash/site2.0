@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import HomeLink from '../components/HomeLink';
 import { useCursor } from '../context/CursorContext';
 import VideoBackground from '../components/VideoBackground';
@@ -13,6 +14,7 @@ interface TeamMember {
 
 const About = () => {
   const { setHovered, isMobile } = useCursor();
+  const navigate = useNavigate(); // Ajout du hook de navigation
   
   // Reset scroll position when component mounts
   useEffect(() => {
@@ -58,19 +60,28 @@ const About = () => {
   };
 
   return (
-    // FIX 1 & 2: Changed w-screen to w-full, overflow-hidden to overflow-x-hidden
     <div className="about-page relative min-h-screen w-full overflow-x-hidden text-white">
       <VideoBackground />
       
-      {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-start items-start pointer-events-none">
+      {/* Header modifié avec le bouton Retour */}
+      <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start pointer-events-none">
         <div className="pointer-events-auto">
           <HomeLink />
         </div>
+        <AnimatePresence>
+          <motion.button
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            exit={{ opacity: 0, x: 20 }}
+            onClick={() => navigate('/')}
+            className="pointer-events-auto text-sm md:text-base font-light tracking-widest uppercase hover:opacity-60 transition-opacity text-white"
+          >
+            Retour / Back
+          </motion.button>
+        </AnimatePresence>
       </div>
       
       {/* Main Content - Centered Layout */}
-      {/* FIX 3 & 4: Changed h-screen to min-h-screen, added py-32 to protect from header overlap */}
       <div className="relative z-10 w-full min-h-screen flex flex-col items-center justify-center px-6 md:px-12 py-32">
         <motion.div 
           className="w-full max-w-4xl text-center flex flex-col items-center"
@@ -78,7 +89,7 @@ const About = () => {
           initial="hidden"
           animate="visible"
         >
-          {/* TITLE: Sized up */}
+          {/* TITLE */}
           <motion.h2 
             className="text-5xl md:text-7xl font-light tracking-wide mb-8 md:mb-12 border-b border-white/20 pb-4 inline-block"
             variants={itemVariants}
@@ -96,7 +107,7 @@ const About = () => {
             </p>
           </motion.div>
           
-          {/* TEAM MEMBERS: Clean Row Layout */}
+          {/* TEAM MEMBERS */}
           <motion.div 
             className="w-full flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24"
             variants={itemVariants}
@@ -108,13 +119,11 @@ const About = () => {
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.2 }}
               >
-                {/* Name Styling: Regular First, Bold Last */}
                 <h3 className="text-lg md:text-xl tracking-wide">
                   <span className="font-light opacity-90">{member.firstName}</span>{' '}
                   <span className="font-bold">{member.lastName}</span>
                 </h3>
                 
-                {/* Email: Subtle with hover effect */}
                 <a 
                   href={`mailto:${member.email}`}
                   className="text-xs md:text-sm opacity-50 hover:opacity-100 transition-opacity tracking-wider uppercase border-b border-transparent hover:border-white/50 pb-0.5"
