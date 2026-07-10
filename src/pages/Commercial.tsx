@@ -25,17 +25,16 @@ const commercialProjects: CommercialProject[] = [
     client: "Food Truck", 
     year: "2026", 
     reelUrl: "https://www.instagram.com/p/DaLSErCpMZk", 
-    // J'ai enlevé le slash initial au cas où ton site est dans un sous-répertoire
     gallery: [
       "images/pub/4.jpg", 
       "images/pub/5.jpg",
       "images/pub/7.jpg",
       "images/pub/8.jpg"
     ],
-    description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique et gourmand pensé spécifiquement pour les réseaux sociaux.",
+    description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique pensé spécifiquement pour les réseaux sociaux.",
     services: [
       "Réalisation de Reel Instagram (Format 9:16)",
-      "Shooting photo culinaire et lifestyle",
+      "Shooting photo culinaire et d'atmosphères",
       "Montage, étalonnage et sound design"
     ],
     team: {
