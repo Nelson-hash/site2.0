@@ -15,6 +15,7 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuToggle }) => {
 
   const isFilmsPage = location.pathname === '/films';
   const isAboutPage = location.pathname === '/about';
+  const isCommercialPage = location.pathname === '/commercial';
 
   const linkStyle = "font-bold tracking-widest uppercase text-4xl md:text-5xl relative group";
 
@@ -44,6 +45,30 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuToggle }) => {
 
   return (
     <>
+      {/* COMMERCIAL / PUBS (En haut à gauche) */}
+      <div className="fixed z-40 top-6 left-6 md:top-8 md:left-8 text-white mix-blend-difference pointer-events-none">
+        <div className="pointer-events-auto">
+          <Link 
+            to="/commercial"
+            onMouseEnter={() => !isMobile && setHovered(true)}
+            onMouseLeave={() => !isMobile && setHovered(false)}
+            className={`${linkStyle} ${isCommercialPage ? 'opacity-100' : 'opacity-70 hover:opacity-100'} transition-opacity duration-300`}
+          >
+            {/* Affichage conditionnel selon l'écran */}
+            <span className="md:hidden">Pubs</span>
+            <span className="hidden md:inline">Commercial</span>
+            
+            {isCommercialPage && (
+              <motion.div 
+                layoutId="underline-commercial"
+                className="absolute -bottom-1 left-0 w-full h-[3px] bg-white"
+              />
+            )}
+          </Link>
+        </div>
+      </div>
+
+      {/* FILMS (En haut à droite) */}
       <div className="fixed z-40 top-6 right-6 md:top-8 md:right-8 text-white mix-blend-difference pointer-events-none flex flex-col items-end">
         <div className="pointer-events-auto flex flex-col items-end">
           <button 
@@ -134,7 +159,7 @@ const Navigation: React.FC<NavigationProps> = ({ onMenuToggle }) => {
         </div>
       </div>
 
-      {/* A PROPOS */}
+      {/* A PROPOS (En bas à droite) */}
       <div className="fixed z-40 bottom-6 right-6 md:bottom-8 md:right-8 text-white mix-blend-difference pointer-events-none">
         <div className="pointer-events-auto">
           <Link 
