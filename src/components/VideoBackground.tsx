@@ -1,6 +1,17 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const VideoBackground: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // Force la lecture de la vidéo pour contourner les blocages Safari/iOS et Android
+    if (videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.warn("L'autoplay a été bloqué par le navigateur :", error);
+      });
+    }
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[-1] overflow-hidden">
       {/* Optional: Overlay to ensure text remains readable on top of video */}
@@ -10,6 +21,7 @@ const VideoBackground: React.FC = () => {
       />
 
       <video
+        ref={videoRef}
         className="w-full h-full object-cover"
         autoPlay
         loop
