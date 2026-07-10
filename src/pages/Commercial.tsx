@@ -53,14 +53,15 @@ class ImageLoader {
 // --- DATA ---
 const commercialProjects: CommercialProject[] = [
   { 
-    title: "FOOD TRUCK", 
-    client: "Nom du Client", // À modifier avec le vrai nom
-    year: "2024", 
+    title: "MIAM MIAM MIAM", 
+    client: "Food Truck", 
+    year: "2026", 
     reelUrl: "https://www.instagram.com/p/DaLSErCpMZk", 
     gallery: [
-      "/images/pub/foodtruck-1.jpg", // Remplace par tes vrais chemins
-      "/images/pub/foodtruck-2.jpg",
-      "/images/pub/foodtruck-3.jpg"
+      // Mets tes vraies photos dans le dossier public/images/pub/
+      "/images/pub/miam-1.jpg", 
+      "/images/pub/miam-2.jpg",
+      "/images/pub/miam-3.jpg"
     ],
     description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique et gourmand pensé spécifiquement pour les réseaux sociaux.",
     services: [
@@ -69,8 +70,12 @@ const commercialProjects: CommercialProject[] = [
       "Montage, étalonnage et sound design"
     ],
     team: {
-      main: ["Production : Horus Productions", "Réalisation : Ton Nom"],
-      additional: ["Chef Opérateur : Nom", "Montage : Nom"]
+      main: [
+        "Production : Horus Productions", 
+        "Réalisation : Jonas Aragones (@j.onas____)"
+      ],
+      // Tu peux ajouter d'autres personnes ici si besoin, elles s'afficheront directement à la suite
+      additional: [] 
     }, 
     theme: { background: "#e8e5df", text: "#1a1a1a", accent: "#d35400" }
   },
@@ -86,7 +91,6 @@ const Commercial: React.FC = () => {
   const navigableProjects = useMemo(() => commercialProjects, []);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const [isExiting, setIsExiting] = useState(false);
@@ -120,7 +124,6 @@ const Commercial: React.FC = () => {
 
       if (nextIndex !== prev) {
         isTransitioningRef.current = true;
-        setExpandedTeam(null);
         setCurrentImageIndex(0);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         setTimeout(() => { isTransitioningRef.current = false; }, 1200); 
@@ -154,7 +157,6 @@ const Commercial: React.FC = () => {
     setTimeout(() => navigate('/'), 600);
   }, [isLightboxOpen, navigate]);
 
-  const toggleTeamExpansion = (title: string) => setExpandedTeam(prev => prev === title ? null : title);
   const handleLinkClick = (project: CommercialProject) => project.link && window.open(project.link, '_blank');
   
   const nextImage = () => { if (activeProject?.gallery) setCurrentImageIndex(p => (p + 1) % activeProject.gallery!.length); };
@@ -216,7 +218,7 @@ const Commercial: React.FC = () => {
                 className="text-[10px] md:text-xs font-bold tracking-widest uppercase whitespace-nowrap origin-right"
                 style={{ color: activeProject.theme.text }}
               >
-                {project.client}
+                {project.title}
               </motion.span>
               <motion.div
                 animate={{ height: isActive ? 32 : 6, opacity: isActive ? 1 : 0.3 }}
@@ -303,25 +305,15 @@ const Commercial: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Crédits</h3>
                   <div className="space-y-1.5">
+                     {/* Affichage direct de tous les crédits sans bouton */}
                      {activeProject.team.main.map((member, index) => {
                         const [role, name] = member.split(' : ');
-                        return (<p key={index} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
+                        return (<p key={`main-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
                      })}
-                     {activeProject.team.additional && (
-                       <>
-                           <div className={`overflow-hidden transition-all duration-500 ease-in-out ${expandedTeam === activeProject.title ? 'max-h-[800px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                             <div className="space-y-1.5 pt-2 border-t border-black/10 dark:border-white/10">
-                                {activeProject.team.additional.map((member, index) => {
-                                   const [role, name] = member.split(' : ');
-                                   return (<p key={index} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
-                                })}
-                             </div>
-                           </div>
-                           <button onClick={() => toggleTeamExpansion(activeProject.title)} className="text-xs opacity-50 hover:opacity-100 mt-2 underline decoration-dotted underline-offset-4">
-                             {expandedTeam === activeProject.title ? '- Réduire les crédits' : '+ Tous les crédits'}
-                           </button>
-                       </>
-                     )}
+                     {activeProject.team.additional && activeProject.team.additional.map((member, index) => {
+                        const [role, name] = member.split(' : ');
+                        return (<p key={`add-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
+                     })}
                   </div>
                 </div>
               </div>
