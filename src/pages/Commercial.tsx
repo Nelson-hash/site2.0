@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCursor } from '../context/CursorContext';
@@ -18,38 +18,6 @@ interface CommercialProject {
   theme: { background: string; text: string; accent: string; };
 }
 
-// --- UTILITIES ---
-class ImageLoader {
-  private static cache = new Map<string, HTMLImageElement>();
-  private static loadingPromises = new Map<string, Promise<HTMLImageElement>>();
-  
-  static async loadImage(src: string, priority: 'high' | 'low' = 'low'): Promise<HTMLImageElement> {
-    if (!src) return Promise.reject("No source provided"); 
-    if (this.cache.has(src)) return this.cache.get(src)!;
-    if (this.loadingPromises.has(src)) return this.loadingPromises.get(src)!;
-    
-    const loadingPromise = new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      const cleanup = () => this.loadingPromises.delete(src);
-      img.onload = () => { this.cache.set(src, img); cleanup(); resolve(img); };
-      img.onerror = () => { cleanup(); reject(new Error(`Failed to load image: ${src}`)); };
-      img.decoding = 'async';
-      img.loading = 'eager';
-      if (priority === 'high' && 'fetchPriority' in img) { (img as any).fetchPriority = 'high'; }
-      img.src = src;
-    });
-    
-    this.loadingPromises.set(src, loadingPromise);
-    return loadingPromise;
-  }
-  
-  static preloadImages(sources: string[]) {
-    sources.forEach((src, index) => {
-      if (src) this.loadImage(src, index === 0 ? 'high' : 'low').catch(() => console.warn(`Failed to preload: ${src}`));
-    });
-  }
-}
-
 // --- DATA ---
 const commercialProjects: CommercialProject[] = [
   { 
@@ -57,11 +25,12 @@ const commercialProjects: CommercialProject[] = [
     client: "Food Truck", 
     year: "2026", 
     reelUrl: "https://www.instagram.com/p/DaLSErCpMZk", 
+    // J'ai enlevé le slash initial au cas où ton site est dans un sous-répertoire
     gallery: [
-      "/images/pub/4.jpg", 
-      "/images/pub/5.jpg",
-      "/images/pub/7.jpg",
-      "/images/pub/8.jpg"
+      "images/pub/4.jpg", 
+      "images/pub/5.jpg",
+      "images/pub/7.jpg",
+      "images/pub/8.jpg"
     ],
     description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique et gourmand pensé spécifiquement pour les réseaux sociaux.",
     services: [
@@ -77,75 +46,39 @@ const commercialProjects: CommercialProject[] = [
       additional: [] 
     }, 
     theme: { background: "#e8e5df", text: "#1a1a1a", accent: "#d35400" }
-  },
-  // Ajoute tes futures pubs ici...
+  }
 ];
 
 // --- MAIN COMPONENT ---
 const Commercial: React.FC = () => {
   const navigate = useNavigate();
+  const { isMobile } = useCursor();
   const navigableProjects = useMemo(() => commercialProjects, []);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const [isExiting, setIsExiting] = useState(false);
-  
-  const touchStartY = useRef(0);
-  const isTransitioningRef = useRef(false);
 
   const activeProject = navigableProjects[currentIndex];
 
+  // Restaure le défilement normal à chaque changement de page
   useEffect(() => {
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
     window.scrollTo(0, 0);
-    
-    if (activeProject?.gallery) {
-        ImageLoader.preloadImages(activeProject.gallery);
-    }
   }, [activeProject]);
 
-  const goToProject = useCallback((directionOrIndex: 'next' | 'prev' | number) => {
-    if (isTransitioningRef.current || isLightboxOpen) return;
+  // Fonction de changement de projet ultra réactive (sans timeout bloquant)
+  const goToProject = useCallback((index: number) => {
+    if (isLightboxOpen || index === currentIndex) return;
     
-    setCurrentIndex(prev => {
-      let nextIndex = prev;
-      if (directionOrIndex === 'next') nextIndex = prev + 1;
-      else if (directionOrIndex === 'prev') nextIndex = prev - 1;
-      else nextIndex = directionOrIndex as number;
-
-      if (nextIndex < 0) nextIndex = 0;
-      if (nextIndex >= navigableProjects.length) nextIndex = navigableProjects.length - 1;
-
-      if (nextIndex !== prev) {
-        isTransitioningRef.current = true;
-        setCurrentImageIndex(0);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => { isTransitioningRef.current = false; }, 1200); 
-      }
-      return nextIndex;
-    });
-  }, [isLightboxOpen, navigableProjects.length]);
-
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (isLightboxOpen || isTransitioningRef.current) return;
-      if (e.deltaY > 50) goToProject('next');
-      else if (e.deltaY < -50) goToProject('prev');
-    };
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [goToProject, isLightboxOpen]);
-
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartY.current = e.touches[0].clientY; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (isLightboxOpen || isTransitioningRef.current) return;
-    const touchEndY = e.changedTouches[0].clientY;
-    const delta = touchStartY.current - touchEndY;
-    if (delta > 80) goToProject('next');
-    else if (delta < -80) goToProject('prev');
-  };
+    if (index >= 0 && index < navigableProjects.length) {
+      setCurrentImageIndex(0);
+      setCurrentIndex(index);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isLightboxOpen, currentIndex, navigableProjects.length]);
 
   const handleBackToHome = useCallback(() => {
     if (isLightboxOpen) { closeLightbox(); return; }
@@ -174,8 +107,6 @@ const Commercial: React.FC = () => {
 
   return (
     <motion.div
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
       className="min-h-screen w-full flex flex-col relative overflow-x-hidden"
       initial={{ opacity: 0, backgroundColor: 'transparent' }}
       animate={{
@@ -199,14 +130,15 @@ const Commercial: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-none md:pointer-events-auto">
+      {/* FRISE DE NAVIGATION (Clic direct) */}
+      <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-auto">
         {navigableProjects.map((project, idx) => {
           const isActive = idx === currentIndex;
           return (
             <div
               key={project.title}
               onClick={() => goToProject(idx)}
-              className="flex items-center justify-end gap-3 cursor-pointer group pointer-events-auto"
+              className="flex items-center justify-end gap-3 cursor-pointer group"
             >
               <motion.span
                 animate={{ opacity: isActive ? 1 : 0.4, scale: isActive ? 1.1 : 1 }}
@@ -219,7 +151,7 @@ const Commercial: React.FC = () => {
               <motion.div
                 animate={{ height: isActive ? 32 : 6, opacity: isActive ? 1 : 0.3 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="w-1.5 md:w-2 rounded-full bg-current origin-center"
+                className="w-1.5 md:w-2 rounded-full bg-current origin-center group-hover:opacity-80"
                 style={{ color: activeProject.theme.text }}
               />
             </div>
@@ -258,9 +190,11 @@ const Commercial: React.FC = () => {
                 )}
 
                 {activeProject.gallery && activeProject.gallery.length > 0 && (
-                    <div className="relative flex-grow h-full overflow-hidden rounded-lg shadow-lg group select-none bg-black/5">
+                    <div className="relative flex-grow h-full overflow-hidden rounded-lg shadow-lg group select-none bg-black/5 flex items-center justify-center">
                         <motion.img 
                             key={currentImageIndex} 
+                            // Outil de débug: Affiche un log si l'image casse
+                            onError={(e) => console.error("Erreur de chargement de l'image :", e.currentTarget.src)}
                             src={activeProject.gallery[currentImageIndex]} 
                             alt={`${activeProject.title} photo`}
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
@@ -319,6 +253,7 @@ const Commercial: React.FC = () => {
         </AnimatePresence>
       </div>
 
+      {/* LIGHTBOX */}
       <AnimatePresence>
         {isLightboxOpen && activeProject && activeProject.gallery && (
           <motion.div
