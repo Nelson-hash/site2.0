@@ -5,14 +5,14 @@ import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
 // --- INTERFACES ---
-interface Commercial {
+interface CommercialProject {
   title: string;
   client: string;
   year: string;
-  reelUrl: string; // Lien Instagram classique
+  reelUrl: string;
   gallery?: string[]; 
   description: string;
-  services: string[]; // Liste des prestations (ex: Reel, Photos, etc.)
+  services: string[];
   team: { main: string[]; additional?: string[]; };
   link?: string;
   theme: { background: string; text: string; accent: string; };
@@ -51,7 +51,7 @@ class ImageLoader {
 }
 
 // --- DATA ---
-const commercialProjects: Commercial[] = [
+const commercialProjects: CommercialProject[] = [
   { 
     title: "FOOD TRUCK", 
     client: "Nom du Client", // À modifier avec le vrai nom
@@ -78,7 +78,7 @@ const commercialProjects: Commercial[] = [
 ];
 
 // --- MAIN COMPONENT ---
-const Commercials: React.FC = () => {
+const Commercial: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { setHovered, isMobile } = useCursor();
@@ -101,7 +101,6 @@ const Commercials: React.FC = () => {
     document.documentElement.style.overflow = 'auto';
     window.scrollTo(0, 0);
     
-    // Preload gallery images for the active project
     if (activeProject?.gallery) {
         ImageLoader.preloadImages(activeProject.gallery);
     }
@@ -130,7 +129,6 @@ const Commercials: React.FC = () => {
     });
   }, [isLightboxOpen, navigableProjects.length]);
 
-  // Handle Scroll & Touch Navigation
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (isLightboxOpen || isTransitioningRef.current) return;
@@ -157,13 +155,13 @@ const Commercials: React.FC = () => {
   }, [isLightboxOpen, navigate]);
 
   const toggleTeamExpansion = (title: string) => setExpandedTeam(prev => prev === title ? null : title);
-  const handleLinkClick = (project: Commercial) => project.link && window.open(project.link, '_blank');
+  const handleLinkClick = (project: CommercialProject) => project.link && window.open(project.link, '_blank');
   
-  // Gallery Controls
   const nextImage = () => { if (activeProject?.gallery) setCurrentImageIndex(p => (p + 1) % activeProject.gallery!.length); };
   const prevImage = () => { if (activeProject?.gallery) setCurrentImageIndex(p => (p - 1 + activeProject.gallery!.length) % activeProject.gallery!.length); };
   const openLightbox = () => { if (activeProject?.gallery?.length) setIsLightboxOpen(true); };
   const closeLightbox = () => setIsLightboxOpen(false);
+  
   const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
     if (offset.x * velocity.x < -10000) nextImage();
     else if (offset.x * velocity.x > 10000) prevImage();
@@ -171,9 +169,8 @@ const Commercials: React.FC = () => {
 
   if (!activeProject) return null;
 
-  // Extrait l'URL d'intégration Instagram proprement
   const getEmbedUrl = (url: string) => {
-      const cleanUrl = url.split('?')[0]; // Enlève les paramètres de suivi
+      const cleanUrl = url.split('?')[0];
       return cleanUrl.endsWith('/') ? `${cleanUrl}embed` : `${cleanUrl}/embed`;
   };
 
@@ -204,7 +201,6 @@ const Commercials: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* --- FRISE CHRONOLOGIQUE --- */}
       <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-none md:pointer-events-auto">
         {navigableProjects.map((project, idx) => {
           const isActive = idx === currentIndex;
@@ -248,10 +244,7 @@ const Commercials: React.FC = () => {
 
             <div className="w-full flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center max-w-6xl pl-0 lg:pr-16">
               
-              {/* --- SECTION MÉDIA (REEL + PHOTOS) --- */}
               <div className="w-full lg:w-2/3 flex flex-col sm:flex-row gap-4 h-[60vh] sm:h-[70vh]">
-                
-                {/* 1. Iframe Instagram Reel */}
                 {activeProject.reelUrl && (
                     <div className="w-full sm:w-[320px] md:w-[350px] h-full flex-shrink-0 rounded-lg overflow-hidden shadow-lg bg-black/5">
                         <iframe 
@@ -264,7 +257,6 @@ const Commercials: React.FC = () => {
                     </div>
                 )}
 
-                {/* 2. Galerie Photos (si des photos sont fournies) */}
                 {activeProject.gallery && activeProject.gallery.length > 0 && (
                     <div className="relative flex-grow h-full overflow-hidden rounded-lg shadow-lg group select-none bg-black/5">
                         <motion.img 
@@ -291,7 +283,6 @@ const Commercials: React.FC = () => {
                 )}
               </div>
 
-              {/* --- SECTION TEXTE (INFOS & CRÉDITS) --- */}
               <div className="w-full lg:w-1/3 flex flex-col gap-8">
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Prestations</h3>
@@ -339,7 +330,6 @@ const Commercials: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* --- LIGHTBOX POUR LA GALERIE --- */}
       <AnimatePresence>
         {isLightboxOpen && activeProject && activeProject.gallery && (
           <motion.div
