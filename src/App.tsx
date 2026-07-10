@@ -8,6 +8,7 @@ import VideoBackground from './components/VideoBackground';
 
 const Films = lazy(() => import('./pages/Films'));
 const About = lazy(() => import('./pages/About'));
+const Commercial = lazy(() => import('./pages/Commercial')); // Nouvel import ici
 
 const PageLoader = () => (
   <div className="h-screen w-full flex items-center justify-center bg-transparent backdrop-blur-sm fixed inset-0 z-50 pointer-events-none">
@@ -43,6 +44,16 @@ function App() {
         <div className="relative min-h-screen w-full overflow-x-hidden">
           <Suspense fallback={<PageLoader />}>
             <About />
+          </Suspense>
+        </div>
+      ),
+    },
+    {
+      path: "/commercial",
+      element: (
+        <div className="relative min-h-screen w-full overflow-x-hidden">
+          <Suspense fallback={<PageLoader />}>
+            <Commercial />
           </Suspense>
         </div>
       ),
