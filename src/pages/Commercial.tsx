@@ -58,10 +58,10 @@ const commercialProjects: CommercialProject[] = [
     year: "2026", 
     reelUrl: "https://www.instagram.com/p/DaLSErCpMZk", 
     gallery: [
-      // Mets tes vraies photos dans le dossier public/images/pub/
-      "/images/pub/miam-1.jpg", 
-      "/images/pub/miam-2.jpg",
-      "/images/pub/miam-3.jpg"
+      "/images/pub/4.jpg", 
+      "/images/pub/5.jpg",
+      "/images/pub/7.jpg",
+      "/images/pub/8.jpg"
     ],
     description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique et gourmand pensé spécifiquement pour les réseaux sociaux.",
     services: [
@@ -74,7 +74,6 @@ const commercialProjects: CommercialProject[] = [
         "Production : Horus Productions", 
         "Réalisation : Jonas Aragones (@j.onas____)"
       ],
-      // Tu peux ajouter d'autres personnes ici si besoin, elles s'afficheront directement à la suite
       additional: [] 
     }, 
     theme: { background: "#e8e5df", text: "#1a1a1a", accent: "#d35400" }
@@ -84,10 +83,7 @@ const commercialProjects: CommercialProject[] = [
 
 // --- MAIN COMPONENT ---
 const Commercial: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { setHovered, isMobile } = useCursor();
-  
   const navigableProjects = useMemo(() => commercialProjects, []);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -250,11 +246,13 @@ const Commercial: React.FC = () => {
                 {activeProject.reelUrl && (
                     <div className="w-full sm:w-[320px] md:w-[350px] h-full flex-shrink-0 rounded-lg overflow-hidden shadow-lg bg-black/5">
                         <iframe 
+                            title={`Reel Instagram - ${activeProject.title}`}
                             src={getEmbedUrl(activeProject.reelUrl)} 
                             className="w-full h-full border-none" 
                             scrolling="no" 
                             allowTransparency={true} 
                             allow="encrypted-media"
+                            loading="lazy"
                         />
                     </div>
                 )}
@@ -305,7 +303,6 @@ const Commercial: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Crédits</h3>
                   <div className="space-y-1.5">
-                     {/* Affichage direct de tous les crédits sans bouton */}
                      {activeProject.team.main.map((member, index) => {
                         const [role, name] = member.split(' : ');
                         return (<p key={`main-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
