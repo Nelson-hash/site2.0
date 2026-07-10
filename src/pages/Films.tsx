@@ -68,7 +68,7 @@ const upcomingFilms: Film[] = [
 
 const pastFilms: Film[] = [
   { title: "QISHUI PAPITEDDYBEAR\nFEAT PENSE", year: "2024", image: "/images/films/qishui.jpg", description: "QISHUI 1er extrait de LA CHAUFFE, EP commun entre PAPI TEDDY BEAR et PenseMusic‬", team: { main: ["Production : Horus Productions", "Musique : Papiteddybear & Pense", "Image : Gabhus"] }, link: "https://www.youtube.com/watch?v=J_wA4imVTlg", theme: { background: "#d8e1e8", text: "#1a2a38", accent: "#7096b8" } },
-  { title: "CONVICTION ELIAS LCS", year: "2026", image: "/images/films/conviction.jpg", description: "CONVICTION, clip du son, déjà disponible sur toutes les plateformes", team: { main: ["Production : Horus Productions", "Musique : Elias LCS", "Réalisation : Matias Thomas, Gabriel Hussein", "Chef opératrice : Marta Romanzo", "Chef électricienne : Leila"] }, link: "https://www.youtube.com/watch?v=xTUR0E_gmVU", theme: { background: "#121212", text: "#ffffff", accent: "#555555" } }
+  { title: "CONVICTION ELIAS LCS", year: "2026", image: "/images/films/conviction.jpg", description: "CONVICTION, clip du titre éponyme disponible sur toutes les plateformes", team: { main: ["Production : Horus Productions", "Musique : Elias LCS", "Réalisation : Matias Thomas, Gabriel Hussein", "Chef opératrice : Marta Romanzo", "Chef électricienne : Leila Calvaruso"] }, link: "https://www.youtube.com/watch?v=xTUR0E_gmVU", theme: { background: "#121212", text: "#ffffff", accent: "#555555" } }
 ];
 
 // --- MAIN COMPONENT ---
