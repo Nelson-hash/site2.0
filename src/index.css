@@ -13,118 +13,87 @@ html, body {
   padding: 0;
   font-family: 'Space Grotesk', sans-serif;
   color: white;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @layer base {
   ::selection {
     @apply bg-white/20;
   }
-  
+
   body {
-    @apply bg-black text-white antialiased;
+    @apply bg-black text-white antialiased overflow-x-hidden;
   }
+}
 
-  /* Desktop screens */
-  @media (min-width: 768px) {
-    body {
-      @apply overflow-hidden;
-    }
-  }
+/* Preloader Initial */
+.preloader {
+  position: fixed;
+  inset: 0;
+  background-color: #0d0d0d;
+  color: #fff;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.7s ease, visibility 0.7s ease;
+}
 
-  /* Mobile devices - allow scrolling */
-  @media (max-width: 767px) {
-    body {
-      @apply overflow-auto;
-    }
-  }
+.preloader--hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
 
-  .nav-item {
-    @apply font-mono tracking-wider text-2xl lg:text-3xl xl:text-4xl transition-all duration-500 opacity-80 hover:opacity-100;
-  }
+.loader-logo {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
 
-  .nav-item:hover {
-    @apply transform scale-110 tracking-widest font-bold;
-  }
+.loader-bar-container {
+  width: 200px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
 
-  /* Mobile navigation improvements */
-  @media (max-width: 767px) {
-    .nav-item {
-      @apply py-3 px-4 text-xl font-semibold bg-black bg-opacity-60 rounded-md backdrop-blur-sm;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .mobile-nav-bar {
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      z-index: 50;
-    }
-  }
+.loader-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ffffff;
+  width: 0%;
+  animation: loadAnim 1.8s cubic-bezier(0.8, 0, 0.2, 1) forwards;
+}
 
-  .logo-container {
-    @apply transition-all duration-700 ease-in-out;
-  }
+@keyframes loadAnim {
+  0% { width: 0%; }
+  50% { width: 65%; }
+  100% { width: 100%; }
+}
 
-  .logo-container:hover .logo-text {
-    @apply transform scale-110;
-  }
+/* Curseur personnalisé */
+.custom-cursor {
+  @apply fixed top-0 left-0 pointer-events-none z-[100] mix-blend-difference rounded-full;
+}
 
-  .video-background {
-    @apply fixed top-0 left-0 w-full h-full object-cover z-[-1];
-    filter: brightness(0.4) contrast(1.1);
-  }
-
+@media (max-width: 767px) {
   .custom-cursor {
-    @apply fixed pointer-events-none z-50 mix-blend-difference;
-    transform: translate(-50%, -50%);
+    @apply hidden;
   }
-  
-  /* Hide custom cursor on mobile */
-  @media (max-width: 767px) {
-    .custom-cursor {
-      @apply hidden;
-    }
-  }
+}
 
-  /* Ensure proper spacing for mobile pages */
-  @media (max-width: 767px) {
-    .page-content {
-      padding-top: 80px;
-      padding-bottom: 100px;
-    }
-  }
-
-  /* Improved touch targets */
-  .touch-target {
-    @apply min-h-[44px] min-w-[44px];
-  }
-
-  /* Smooth fade-in animation for film previews */
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.15s ease-out forwards;
-  }
-
-  /* Optimize rendering performance */
-  .film-preview-container {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
-
-  .film-preview-container img {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
+/* Masquer la barre de défilement sur les carrousels mobiles */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
