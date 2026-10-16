@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useCursor } from '../context/CursorContext';
 import HomeLink from '../components/HomeLink';
 
@@ -9,8 +9,9 @@ interface CommercialProject {
   title: string;
   client: string;
   year: string;
-  reelUrl: string;
-  gallery?: string[]; 
+  reelUrl?: string;
+  heroImages: string[];      // 2 photos 16:9
+  verticalImages: string[];  // 3 photos 9:16
   description: string;
   services: string[];
   team: { main: string[]; additional?: string[]; };
@@ -24,12 +25,14 @@ const commercialProjects: CommercialProject[] = [
     title: "MIAM MIAM MIAM", 
     client: "Food Truck", 
     year: "2026", 
-    reelUrl: "https://www.instagram.com/p/DaLSErCpMZk", 
-    gallery: [
-      "images/pub/4.jpg", 
-      "images/pub/5.jpg",
-      "images/pub/7.jpg",
-      "images/pub/8.jpg"
+    heroImages: [
+      "images/pub/4.jpg", // Photo 16:9 gauche
+      "images/pub/5.jpg"  // Photo 16:9 droite
+    ],
+    verticalImages: [
+      "images/pub/7.jpg", // Photo 9:16 n°1
+      "images/pub/8.jpg", // Photo 9:16 n°2
+      "images/pub/9.jpg"  // Photo 9:16 n°3 (ajoutez-en une 3ème)
     ],
     description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique pensé spécifiquement pour les réseaux sociaux.",
     services: [
@@ -55,54 +58,32 @@ const Commercial: React.FC = () => {
   const navigableProjects = useMemo(() => commercialProjects, []);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0); 
   const [isExiting, setIsExiting] = useState(false);
 
   const activeProject = navigableProjects[currentIndex];
 
-  // Restaure le défilement normal à chaque changement de page
   useEffect(() => {
     document.body.style.overflow = 'auto';
     document.documentElement.style.overflow = 'auto';
     window.scrollTo(0, 0);
   }, [activeProject]);
 
-  // Fonction de changement de projet ultra réactive (sans timeout bloquant)
   const goToProject = useCallback((index: number) => {
-    if (isLightboxOpen || index === currentIndex) return;
-    
+    if (index === currentIndex) return;
     if (index >= 0 && index < navigableProjects.length) {
-      setCurrentImageIndex(0);
       setCurrentIndex(index);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [isLightboxOpen, currentIndex, navigableProjects.length]);
+  }, [currentIndex, navigableProjects.length]);
 
   const handleBackToHome = useCallback(() => {
-    if (isLightboxOpen) { closeLightbox(); return; }
     setIsExiting(true);
     setTimeout(() => navigate('/'), 600);
-  }, [isLightboxOpen, navigate]);
+  }, [navigate]);
 
   const handleLinkClick = (project: CommercialProject) => project.link && window.open(project.link, '_blank');
-  
-  const nextImage = () => { if (activeProject?.gallery) setCurrentImageIndex(p => (p + 1) % activeProject.gallery!.length); };
-  const prevImage = () => { if (activeProject?.gallery) setCurrentImageIndex(p => (p - 1 + activeProject.gallery!.length) % activeProject.gallery!.length); };
-  const openLightbox = () => { if (activeProject?.gallery?.length) setIsLightboxOpen(true); };
-  const closeLightbox = () => setIsLightboxOpen(false);
-  
-  const handleDragEnd = (e: any, { offset, velocity }: PanInfo) => {
-    if (offset.x * velocity.x < -10000) nextImage();
-    else if (offset.x * velocity.x > 10000) prevImage();
-  };
 
   if (!activeProject) return null;
-
-  const getEmbedUrl = (url: string) => {
-      const cleanUrl = url.split('?')[0];
-      return cleanUrl.endsWith('/') ? `${cleanUrl}embed` : `${cleanUrl}/embed`;
-  };
 
   return (
     <motion.div
@@ -115,6 +96,7 @@ const Commercial: React.FC = () => {
         transition: { duration: 0.6, ease: "easeOut" }
       }}
     >
+      {/* HEADER */}
       <div className="fixed top-0 left-0 right-0 z-30 p-4 md:p-8 flex justify-between items-start pointer-events-none">
         <div className="pointer-events-auto"><HomeLink /></div>
         <AnimatePresence>
@@ -129,16 +111,12 @@ const Commercial: React.FC = () => {
         </AnimatePresence>
       </div>
       
-      {/* FRISE DE NAVIGATION (Clic direct) */}
+      {/* NAVIGATION LATERALE */}
       <div className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-5 z-40 pointer-events-auto">
         {navigableProjects.map((project, idx) => {
           const isActive = idx === currentIndex;
           return (
-            <div
-              key={project.title}
-              onClick={() => goToProject(idx)}
-              className="flex items-center justify-end gap-3 cursor-pointer group"
-            >
+            <div key={project.title} onClick={() => goToProject(idx)} className="flex items-center justify-end gap-3 cursor-pointer group">
               <motion.span
                 animate={{ opacity: isActive ? 1 : 0.4, scale: isActive ? 1.1 : 1 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -158,122 +136,84 @@ const Commercial: React.FC = () => {
         })}
       </div>
 
-      <div className="w-full max-w-7xl mx-auto flex-grow flex flex-col pt-24 pb-12 px-4 md:px-8 min-h-screen justify-start">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeProject.title}
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="w-full flex flex-col items-center pb-20"
-          >
-            <div className="w-full text-center mb-8 md:mb-12">
-               <h1 className="text-3xl md:text-5xl font-light tracking-widest uppercase mb-2 whitespace-pre-line">{activeProject.title}</h1>
-               <p className="text-sm md:text-lg opacity-60 tracking-wide">{activeProject.client} — {activeProject.year}</p>
+      {/* CONTENU PRINCIPAL */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeProject.title}
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full flex flex-col pb-20"
+        >
+          {/* TITRE */}
+          <div className="w-full text-center mt-24 mb-12 px-4">
+             <h1 className="text-3xl md:text-5xl font-light tracking-widest uppercase mb-2 whitespace-pre-line">{activeProject.title}</h1>
+             <p className="text-sm md:text-lg opacity-60 tracking-wide">{activeProject.client} — {activeProject.year}</p>
+          </div>
+
+          {/* SECTION 1 : Deux grandes photos 16:9 côte à côte */}
+          <div className="w-full px-4 md:px-8 mb-24 h-[50vh] md:h-[80vh] flex flex-col md:flex-row gap-4">
+            {activeProject.heroImages.slice(0, 2).map((img, idx) => (
+              <div key={`hero-${idx}`} className="w-full md:w-1/2 h-full rounded-lg overflow-hidden shadow-lg bg-black/5">
+                <img 
+                  src={img} 
+                  alt={`${activeProject.title} hero ${idx + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* SECTION 2 : 3 photos 9:16 au scroll + Description sticky */}
+          <div className="w-full max-w-7xl mx-auto px-4 md:px-8 flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
+            
+            {/* Colonne de gauche : 3 photos 9:16 superposées au scroll */}
+            <div className="w-full lg:w-3/5 flex flex-col gap-12 md:gap-24">
+              {activeProject.verticalImages.map((img, idx) => (
+                <div key={`vert-${idx}`} className="w-full sm:w-[80%] mx-auto aspect-[9/16] rounded-lg overflow-hidden shadow-lg bg-black/5">
+                  <img 
+                    src={img} 
+                    alt={`${activeProject.title} vertical ${idx + 1}`} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
             </div>
 
-            <div className="w-full flex flex-col lg:flex-row gap-8 lg:gap-12 items-start justify-center max-w-6xl pl-0 lg:pr-16">
-              
-              <div className="w-full lg:w-2/3 flex flex-col sm:flex-row gap-4 h-[60vh] sm:h-[70vh]">
-                {activeProject.reelUrl && (
-                    <div className="w-full sm:w-[320px] md:w-[350px] h-full flex-shrink-0 rounded-lg overflow-hidden shadow-lg bg-black/5">
-                        <iframe 
-                            title={`Reel Instagram - ${activeProject.title}`}
-                            src={getEmbedUrl(activeProject.reelUrl)} 
-                            className="w-full h-full border-none" 
-                            scrolling="no" 
-                            allowTransparency={true} 
-                            allow="encrypted-media"
-                            loading="lazy"
-                        />
-                    </div>
-                )}
+            {/* Colonne de droite : Textes (Sticky pour rester à l'écran pendant le défilement) */}
+            <div className="w-full lg:w-2/5 flex flex-col gap-8 lg:sticky lg:top-32 pb-12">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Prestations</h3>
+                <ul className="list-disc list-inside text-sm md:text-base leading-relaxed opacity-90 mb-6 space-y-1">
+                    {activeProject.services.map((service, index) => (
+                        <li key={index}>{service}</li>
+                    ))}
+                </ul>
 
-                {activeProject.gallery && activeProject.gallery.length > 0 && (
-                    <div className="relative flex-grow h-full overflow-hidden rounded-lg shadow-lg group select-none bg-black/5 flex items-center justify-center">
-                        <motion.img 
-                            key={currentImageIndex} 
-                            // Outil de débug: Affiche un log si l'image casse
-                            onError={(e) => console.error("Erreur de chargement de l'image :", e.currentTarget.src)}
-                            src={activeProject.gallery[currentImageIndex]} 
-                            alt={`${activeProject.title} photo`}
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
-                            drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.2} onDragEnd={handleDragEnd}
-                            onClick={openLightbox}
-                            className="w-full h-full object-cover cursor-grab active:cursor-grabbing touch-pan-y"
-                        />
-                        {activeProject.gallery.length > 1 && (
-                            <>
-                                <button className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" onClick={(e) => {e.stopPropagation(); prevImage();}}>←</button>
-                                <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block" onClick={(e) => {e.stopPropagation(); nextImage();}}>→</button>
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                {activeProject.gallery.map((_, idx) => (
-                                    <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-white' : 'bg-white/40'}`} />
-                                ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
-              </div>
-
-              <div className="w-full lg:w-1/3 flex flex-col gap-8">
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Prestations</h3>
-                  <ul className="list-disc list-inside text-sm md:text-base leading-relaxed opacity-90 mb-6 space-y-1">
-                      {activeProject.services.map((service, index) => (
-                          <li key={index}>{service}</li>
-                      ))}
-                  </ul>
-
-                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Le Projet</h3>
-                  <p className="text-sm md:text-base leading-relaxed opacity-90 text-justify">{activeProject.description}</p>
-                  
-                  {activeProject.link && (
-                    <div className="mt-4"><button onClick={() => handleLinkClick(activeProject)} className="text-sm border-b border-current pb-0.5 hover:opacity-50 transition-opacity">Voir plus ↗</button></div>
-                  )}
-                </div>
+                <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Le Projet</h3>
+                <p className="text-sm md:text-base leading-relaxed opacity-90 text-justify">{activeProject.description}</p>
                 
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Crédits</h3>
-                  <div className="space-y-1.5">
-                     {activeProject.team.main.map((member, index) => {
-                        const [role, name] = member.split(' : ');
-                        return (<p key={`main-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
-                     })}
-                     {activeProject.team.additional && activeProject.team.additional.map((member, index) => {
-                        const [role, name] = member.split(' : ');
-                        return (<p key={`add-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
-                     })}
-                  </div>
+                {activeProject.link && (
+                  <div className="mt-4"><button onClick={() => handleLinkClick(activeProject)} className="text-sm border-b border-current pb-0.5 hover:opacity-50 transition-opacity">Voir plus ↗</button></div>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest opacity-40 mb-3">Crédits</h3>
+                <div className="space-y-1.5">
+                    {activeProject.team.main.map((member, index) => {
+                      const [role, name] = member.split(' : ');
+                      return (<p key={`main-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
+                    })}
+                    {activeProject.team.additional && activeProject.team.additional.map((member, index) => {
+                      const [role, name] = member.split(' : ');
+                      return (<p key={`add-${index}`} className="text-sm leading-relaxed"><span className="font-bold">{role} :</span> <span className="opacity-90">{name}</span></p>);
+                    })}
                 </div>
               </div>
             </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
 
-      {/* LIGHTBOX */}
-      <AnimatePresence>
-        {isLightboxOpen && activeProject && activeProject.gallery && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md"
-            onClick={closeLightbox}
-          >
-            <button className="absolute top-4 right-4 text-white/70 hover:text-white p-4 z-50">✕</button>
-            <div className="relative w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
-              <motion.img
-                key={currentImageIndex} src={activeProject.gallery[currentImageIndex]}
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.2 }}
-                drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={1} onDragEnd={handleDragEnd}
-                className="max-w-[95%] max-h-[90vh] object-contain cursor-grab active:cursor-grabbing shadow-2xl"
-              />
-               <button className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-6 hidden md:block" onClick={(e) => {e.stopPropagation(); prevImage();}}>❮</button>
-               <button className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-white p-6 hidden md:block" onClick={(e) => {e.stopPropagation(); nextImage();}}>❯</button>
-            </div>
-             <div className="absolute bottom-6 text-white/40 text-sm tracking-widest pointer-events-none">{currentImageIndex + 1} / {activeProject.gallery.length}</div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
       </AnimatePresence>
     </motion.div>
   );
