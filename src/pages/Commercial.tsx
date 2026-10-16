@@ -23,7 +23,7 @@ interface CommercialProject {
 const commercialProjects: CommercialProject[] = [
   { 
     title: "MIAM MIAM MIAM", 
-    client: "Food Truck", 
+    client: "Photos et vidéos pour une marque de restauration", 
     year: "2026", 
     heroImages: [
       "images/pub/4.jpg",
@@ -36,7 +36,7 @@ const commercialProjects: CommercialProject[] = [
     ],
     description: "Campagne de communication digitale pour mettre en avant le savoir-faire et les produits du Food Truck. Un format dynamique pensé spécifiquement pour les réseaux sociaux.",
     services: [
-      "Réalisation de Reel Instagram (Format 9:16)",
+      "Réalisation de Reels Instagram (Format 9:16)",
       "Shooting photo culinaire et d'atmosphères",
       "Montage, étalonnage et sound design"
     ],
